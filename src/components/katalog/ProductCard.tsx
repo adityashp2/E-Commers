@@ -18,6 +18,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    e.nativeEvent.stopImmediatePropagation();
     if (isAvailable) {
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       window.dispatchEvent(
@@ -65,7 +66,9 @@ export default function ProductCard({ product }: ProductCardProps) {
         {isAvailable && (
           <button
             onClick={handleAddToCart}
-            className="absolute bottom-2.5 right-2.5 bg-white text-text shadow-md hover:bg-mint hover:text-white rounded-xl p-2.5 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-110 active:scale-95 flex items-center justify-center"
+            onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            className="absolute bottom-2.5 right-2.5 bg-white text-text shadow-md hover:bg-mint hover:text-white rounded-xl p-2.5 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-110 active:scale-95 flex items-center justify-center z-10"
             aria-label={`Tambah ${product.nama} ke keranjang`}
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
