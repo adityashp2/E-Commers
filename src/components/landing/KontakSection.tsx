@@ -41,8 +41,10 @@ export default function KontakSection() {
 
   // Safe Google Maps Embed URL parser
   const normalizeMapsEmbed = (input?: string) => {
+    const defaultAysflowerEmbed = 'https://maps.google.com/maps?q=Aysflower+Florist+Toko+Bunga+Lampung&t=&z=16&ie=UTF8&iwloc=&output=embed';
+
     if (!input || !input.trim()) {
-      return 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126920.28299863486!2d106.759478!3d-6.2293867!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f3e800000001%3A0x6b402804b4d6!2sJakarta!5e0!3m2!1sid!2sid!4v1700000000000';
+      return defaultAysflowerEmbed;
     }
 
     let str = input.trim();
@@ -53,30 +55,35 @@ export default function KontakSection() {
       str = srcMatch[1];
     }
 
-    // 2. Jika sudah link embed resmi
+    // 2. Jika link bawaan lama Jakarta yang rusak/default
+    if (str.includes('4v1700000000000') || str.includes('0x2e69f3e800000001%3A0x6b402804b4d6')) {
+      return defaultAysflowerEmbed;
+    }
+
+    // 3. Jika sudah link embed resmi
     if (str.includes('google.com/maps/embed') || str.includes('output=embed')) {
       return str;
     }
 
-    // 3. Jika user memasukkan link maps biasa (maps.google.com atau goo.gl / place)
+    // 4. Jika user memasukkan link maps biasa (maps.google.com atau goo.gl / place)
     try {
       if (str.startsWith('http')) {
         const url = new URL(str);
         const q = url.searchParams.get('q');
         if (q) {
-          return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+          return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
         }
 
         const placeMatch = url.pathname.match(/\/place\/([^/@]+)/);
         if (placeMatch && placeMatch[1]) {
           const placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
-          return `https://maps.google.com/maps?q=${encodeURIComponent(placeName)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+          return `https://maps.google.com/maps?q=${encodeURIComponent(placeName)}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
         }
       }
     } catch {}
 
-    // 4. Fallback jika user memasukkan teks alamat biasa
-    return `https://maps.google.com/maps?q=${encodeURIComponent(str)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    // 5. Fallback jika user memasukkan teks nama tempat / alamat biasa
+    return `https://maps.google.com/maps?q=${encodeURIComponent(str)}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
   };
 
   const mapsEmbedSrc = normalizeMapsEmbed(content.kontak_maps_embed || content.kontak_alamat);
