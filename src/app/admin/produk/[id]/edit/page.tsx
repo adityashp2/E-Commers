@@ -1,0 +1,297 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import { ArrowLeft, Loader2, Check } from 'lucide-react';
+import Link from 'next/link';
+import ImageUploadWithCompress from '@/components/admin/ImageUploadWithCompress';
+import { useCategories, useProducts, addOrUpdateProduct } from '@/lib/store';
+
+export default function EditProdukPage() {
+  const router = useRouter();
+  const params = useParams();
+  const productId = params.id as string;
+
+  const { categories } = useCategories();
+  const { products, isLoading: isProductsLoading } = useProducts();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const [nama, setNama] = useState('');
+  const [kategoriId, setKategoriId] = useState('');
+  const [harga, setHarga] = useState('');
+  const [deskripsi, setDeskripsi] = useState('');
+  const [status, setStatus] = useState<'tersedia' | 'habis'>('tersedia');
+  const [fotoFile, setFotoFile] = useState<File | null>(null);
+  const [fotoUrl, setFotoUrl] = useState('');
+  const [slug, setSlug] = useState('');
+
+  useEffect(() => {
+    if (!isProductsLoading && products.length > 0) {
+      const p = products.find((prod) => prod.id === productId);
+      if (p) {
+        setNama(p.nama);
+        setKategoriId(p.kategori_id || '');
+        setHarga(p.harga.toString());
+        setDeskripsi(p.deskripsi || '');
+        setStatus(p.status);
+        setFotoUrl(p.foto_url || '');
+        setSlug(p.slug);
+      }
+    }
+  }, [productId, products, isProductsLoading]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nama.trim() || !harga) {
+      setError('Nama dan harga wajib diisi');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      let finalFotoUrl = fotoUrl;
+
+      // Try uploading to Supabase Storage if file exists
+      if (fotoFile) {
+        try {
+          const supabase = createClient();
+          const fileExt = fotoFile.name.split('.').pop() || 'webp';
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('produk-images')
+            .upload(fileName, fotoFile, {
+              cacheControl: '31536000',
+              contentType: fotoFile.type,
+              upsert: false,
+            });
+
+          if (!uploadError && uploadData) {
+            const { data: urlData } = supabase.storage
+              .from('produk-images')
+              .getPublicUrl(fileName);
+            if (urlData?.publicUrl) {
+              finalFotoUrl = urlData.publicUrl;
+            }
+          }
+        } catch {
+          // If storage fails, finalFotoUrl retains the base64 URL
+        }
+      }
+
+      await addOrUpdateProduct({
+        id: productId,
+        nama: nama.trim(),
+        slug: slug || undefined,
+        kategori_id: kategoriId || null,
+        harga: parseInt(harga) || 0,
+        deskripsi: deskripsi.trim() || null,
+        foto_url: finalFotoUrl || null,
+        status,
+      });
+
+      router.push('/admin/produk');
+      router.refresh();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Terjadi kesalahan menyimpan produk';
+      setError(msg);
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isProductsLoading) {
+    return (
+      <div className="max-w-2xl space-y-4">
+        <div className="skeleton h-8 w-48 rounded-xl" />
+        <div className="skeleton h-96 w-full rounded-3xl" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl space-y-6">
+      <Link
+        href="/admin/produk"
+        className="inline-flex items-center gap-2 text-text-secondary hover:text-mint transition-colors text-sm font-semibold"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Kembali ke Kelola Produk
+      </Link>
+
+      <div>
+        <h1 className="font-[family-name:var(--font-heading)] text-2xl sm:text-3xl font-bold text-text">
+          Edit Produk
+        </h1>
+        <p className="text-text-secondary text-xs sm:text-sm mt-1">
+          Perbarui informasi, harga, foto, atau stok ketersediaan buket
+        </p>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 text-red-600 p-4 rounded-2xl border border-red-200 text-sm">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 sm:p-8 border border-border/80 shadow-xs space-y-5">
+        <div>
+          <label htmlFor="nama" className="block text-xs font-bold uppercase tracking-wider text-text mb-1.5">
+            Nama Produk <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="nama"
+            type="text"
+            value={nama}
+            onChange={(e) => setNama(e.target.value)}
+            className="input-field py-2.5 text-sm"
+            required
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="kategori" className="block text-xs font-bold uppercase tracking-wider text-text mb-1.5">
+              Kategori
+            </label>
+            <select
+              id="kategori"
+              value={kategoriId}
+              onChange={(e) => setKategoriId(e.target.value)}
+              className="input-field py-2.5 text-sm bg-white"
+            >
+              <option value="">-- Pilih Kategori --</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nama}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="harga" className="block text-xs font-bold uppercase tracking-wider text-text mb-1.5">
+              Harga (Rp) <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="harga"
+              type="number"
+              value={harga}
+              onChange={(e) => setHarga(e.target.value)}
+              className="input-field py-2.5 text-sm"
+              min="0"
+              step="1000"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="deskripsi" className="block text-xs font-bold uppercase tracking-wider text-text mb-1.5">
+            Deskripsi
+          </label>
+          <textarea
+            id="deskripsi"
+            value={deskripsi}
+            onChange={(e) => setDeskripsi(e.target.value)}
+            rows={3}
+            className="input-field resize-none py-2.5 text-sm"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-wider text-text mb-1.5">
+            Foto Buket
+          </label>
+          <ImageUploadWithCompress
+            label="Foto Saat Ini"
+            initialUrl={fotoUrl}
+            helperText="Otomatis dikompres ke WebP di bawah 200 KB"
+            onImageSelected={(file, dataUrl) => {
+              setFotoFile(file);
+              if (dataUrl) setFotoUrl(dataUrl);
+            }}
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-wider text-text mb-2.5">
+            Status Ketersediaan Produk
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md">
+            {/* Opsi 1: Tersedia (Hijau / Mint) */}
+            <label
+              className={`flex items-center gap-3 p-3 rounded-2xl border-2 cursor-pointer transition-all ${
+                status === 'tersedia'
+                  ? 'border-mint bg-mint-light/40 text-mint-dark shadow-xs'
+                  : 'border-border/80 bg-white text-text-secondary hover:border-mint/50'
+              }`}
+            >
+              <input
+                type="radio"
+                name="status"
+                value="tersedia"
+                checked={status === 'tersedia'}
+                onChange={() => setStatus('tersedia')}
+                className="w-4 h-4 accent-mint-dark cursor-pointer"
+              />
+              <div>
+                <span className="block text-xs font-bold text-text">Tersedia (Ready Stock)</span>
+                <span className="block text-[11px] text-text-secondary">Produk bisa langsung dipesan</span>
+              </div>
+            </label>
+
+            {/* Opsi 2: Habis (Merah / Rose) */}
+            <label
+              className={`flex items-center gap-3 p-3 rounded-2xl border-2 cursor-pointer transition-all ${
+                status === 'habis'
+                  ? 'border-red-400 bg-red-50 text-red-700 shadow-xs'
+                  : 'border-border/80 bg-white text-text-secondary hover:border-red-300'
+              }`}
+            >
+              <input
+                type="radio"
+                name="status"
+                value="habis"
+                checked={status === 'habis'}
+                onChange={() => setStatus('habis')}
+                className="w-4 h-4 accent-red-600 cursor-pointer"
+              />
+              <div>
+                <span className="block text-xs font-bold text-red-600">Habis / Pre-order</span>
+                <span className="block text-[11px] text-text-secondary">Muncul badge habis di katalog</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div className="flex gap-3 pt-3 border-t border-border/60">
+          <Link
+            href="/admin/produk"
+            className="btn-secondary py-3 px-5 text-sm font-semibold"
+          >
+            Batal
+          </Link>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="btn-primary py-3 px-6 text-sm font-bold flex-1 sm:flex-none shadow-md"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Menyimpan...
+              </>
+            ) : (
+              <>
+                <Check className="w-4 h-4" /> Simpan Perubahan
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
