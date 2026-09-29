@@ -39,11 +39,47 @@ export default function KontakSection() {
   const igHandle = content.kontak_instagram.replace(/^@/, '');
   const igUrl = `https://instagram.com/${igHandle}`;
 
-  // Safe Google Maps Embed URL
-  const defaultEmbed = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126920.28299863486!2d106.759478!3d-6.2293867!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f3e800000001%3A0x6b402804b4d6!2sJakarta!5e0!3m2!1sid!2sid!4v1700000000000';
-  const mapsEmbedSrc = content.kontak_maps_embed && content.kontak_maps_embed.includes('google.com/maps/embed')
-    ? content.kontak_maps_embed
-    : defaultEmbed;
+  // Safe Google Maps Embed URL parser
+  const normalizeMapsEmbed = (input?: string) => {
+    if (!input || !input.trim()) {
+      return 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126920.28299863486!2d106.759478!3d-6.2293867!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f3e800000001%3A0x6b402804b4d6!2sJakarta!5e0!3m2!1sid!2sid!4v1700000000000';
+    }
+
+    let str = input.trim();
+
+    // 1. Jika user paste tag lengkap <iframe src="...">
+    const srcMatch = str.match(/src=["']([^"']+)["']/i);
+    if (srcMatch && srcMatch[1]) {
+      str = srcMatch[1];
+    }
+
+    // 2. Jika sudah link embed resmi
+    if (str.includes('google.com/maps/embed') || str.includes('output=embed')) {
+      return str;
+    }
+
+    // 3. Jika user memasukkan link maps biasa (maps.google.com atau goo.gl / place)
+    try {
+      if (str.startsWith('http')) {
+        const url = new URL(str);
+        const q = url.searchParams.get('q');
+        if (q) {
+          return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+        }
+
+        const placeMatch = url.pathname.match(/\/place\/([^/@]+)/);
+        if (placeMatch && placeMatch[1]) {
+          const placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
+          return `https://maps.google.com/maps?q=${encodeURIComponent(placeName)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+        }
+      }
+    } catch {}
+
+    // 4. Fallback jika user memasukkan teks alamat biasa
+    return `https://maps.google.com/maps?q=${encodeURIComponent(str)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+  };
+
+  const mapsEmbedSrc = normalizeMapsEmbed(content.kontak_maps_embed || content.kontak_alamat);
 
   const mapsDirectUrl = content.kontak_maps_url || 'https://maps.google.com/?q=Jakarta';
 
