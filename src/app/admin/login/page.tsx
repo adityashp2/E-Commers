@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Lock, Mail, AlertCircle, KeyRound, Sparkles } from 'lucide-react';
+import { Lock, Mail, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
@@ -12,46 +12,29 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleBypassLocal = () => {
-    // Set developer admin cookie for offline/local development
-    document.cookie = 'admin_session=active; path=/; max-age=86400';
-    router.push('/admin/produk');
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
-    // 1. Direct Local Admin Credentials Check
-    if (
-      (email === 'admin@toko.com' || email === 'admin@buket.com' || email === 'admin') &&
-      password === 'admin123'
-    ) {
-      document.cookie = 'admin_session=active; path=/; max-age=86400';
-      router.push('/admin/produk');
-      return;
-    }
-
-    // 2. Supabase Auth Check
     try {
       const supabase = createClient();
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password.trim(),
       });
 
-      if (authError) {
-        // Provide hint if failed
-        setError('Email atau password salah. Jika belum setting akun Supabase, gunakan akun lokal di bawah.');
+      if (authError || !data?.session) {
+        setError('Email atau password salah. Pastikan kredensial admin Anda valid.');
         return;
       }
 
-      document.cookie = 'admin_session=active; path=/; max-age=86400';
+      // Tandai cookie sesi aktif setelah sukses autentikasi Supabase
+      document.cookie = 'admin_session=active; path=/; max-age=86400; SameSite=Lax';
       router.push('/admin/produk');
       router.refresh();
     } catch {
-      setError('Terjadi kendala koneksi ke Supabase Auth.');
+      setError('Terjadi kendala saat menghubungi server autentikasi.');
     } finally {
       setIsLoading(false);
     }
@@ -81,11 +64,11 @@ export default function AdminLoginPage() {
           <div>
             <label htmlFor="email" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-text mb-1.5">
               <Mail className="w-3.5 h-3.5 text-mint-dark" />
-              Email / Akun
+              Email Admin
             </label>
             <input
               id="email"
-              type="text"
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@toko.com"
@@ -105,7 +88,7 @@ export default function AdminLoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="admin123"
+              placeholder="••••••••"
               className="input-field py-2.5 text-sm"
               required
               autoComplete="current-password"
@@ -114,34 +97,17 @@ export default function AdminLoginPage() {
 
           <button
             type="submit"
-            className="btn-primary w-full py-3.5 text-sm font-bold shadow-md"
+            className="btn-primary w-full py-3.5 text-sm font-bold shadow-md flex items-center justify-center gap-2"
             disabled={isLoading}
           >
-            {isLoading ? 'Memeriksa Akun...' : 'Masuk ke Admin Panel'}
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Memeriksa Akun...
+              </>
+            ) : (
+              'Masuk ke Admin Panel'
+            )}
           </button>
-
-          {/* Quick Access Card Info */}
-          <div className="mt-6 pt-5 border-t border-border/80 rounded-2xl bg-canvas p-4 text-xs space-y-2">
-            <div className="flex items-center gap-1.5 font-bold text-text">
-              <KeyRound className="w-3.5 h-3.5 text-mint-dark" />
-              <span>Akun Default Admin Panel:</span>
-            </div>
-            <p className="text-text-secondary">
-              Email: <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-border text-text font-bold">admin@toko.com</code>
-            </p>
-            <p className="text-text-secondary">
-              Password: <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-border text-text font-bold">admin123</code>
-            </p>
-            
-            <button
-              type="button"
-              onClick={handleBypassLocal}
-              className="mt-3 w-full py-2 px-3 rounded-xl bg-mint-light hover:bg-mint/30 text-mint-dark font-bold text-xs flex items-center justify-center gap-1.5 transition-colors border border-mint/30"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              Masuk Langsung (1-Klik Tanpa Password)
-            </button>
-          </div>
         </form>
       </div>
     </div>
