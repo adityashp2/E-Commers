@@ -19,9 +19,11 @@ import {
   Plus,
   Minus,
   Package,
+  MessageCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import SafeImage, { FALLBACK_BOUQUET_IMG } from '@/components/ui/SafeImage';
+import { useSettings } from '@/lib/store';
 
 interface ProductDetailClientProps {
   slug: string;
@@ -32,6 +34,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
   const router = useRouter();
   const { addItem } = useCart();
   const { products, isLoading } = useProducts();
+  const { settings } = useSettings();
   const [jumlah, setJumlah] = useState(1);
   const [copied, setCopied] = useState(false);
   const [added, setAdded] = useState(false);
@@ -104,6 +107,16 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
     if (!isAvailable) return;
     addItem(product, jumlah);
     router.push('/keranjang');
+  };
+
+  const handlePreOrder = () => {
+    const waNumber = settings.wa_number || '085161204930';
+    const cleanNumber = waNumber.replace(/\D/g, '');
+    const formattedNumber = cleanNumber.startsWith('0')
+      ? '62' + cleanNumber.slice(1)
+      : cleanNumber;
+    const message = `Halo Kak, saya tertarik untuk *Pre-Order* produk ini:\n\n*${product.nama}*\nHarga: ${formatRupiah(product.harga)}\nLink: ${typeof window !== 'undefined' ? window.location.href : ''}\n\nApakah bisa dibuatkan? Mohon info estimasi waktu dan ketersediaan ya Kak. Terima kasih!`;
+    window.open(`https://wa.me/${formattedNumber}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const handleShare = async () => {
@@ -224,21 +237,36 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <button
-                  onClick={(e) => handleAddToCart(e)}
-                  disabled={!isAvailable}
-                  className="btn-secondary flex-1 py-4 text-base font-bold touch-target disabled:opacity-50"
-                >
-                  <ShoppingBag className="w-5 h-5 text-mint-dark" />
-                  <span>{added ? 'Ditambahkan ke Keranjang!' : 'Tambah ke Keranjang'}</span>
-                </button>
-                <button
-                  onClick={handleDirectOrder}
-                  disabled={!isAvailable}
-                  className="btn-primary flex-1 py-4 text-base font-bold shadow-lg touch-target disabled:opacity-50"
-                >
-                  <span>Pesan Sekarang</span>
-                </button>
+                {isAvailable ? (
+                  <>
+                    <button
+                      onClick={(e) => handleAddToCart(e)}
+                      className="btn-secondary flex-1 py-4 text-base font-bold touch-target"
+                    >
+                      <ShoppingBag className="w-5 h-5 text-mint-dark" />
+                      <span>{added ? 'Ditambahkan ke Keranjang!' : 'Tambah ke Keranjang'}</span>
+                    </button>
+                    <button
+                      onClick={handleDirectOrder}
+                      className="btn-primary flex-1 py-4 text-base font-bold shadow-lg touch-target"
+                    >
+                      <span>Pesan Sekarang</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex-1 py-4 text-center rounded-2xl bg-red-50 border border-red-200 text-red-600 font-bold text-sm">
+                      Stok Habis — Tidak Bisa Dipesan Langsung
+                    </div>
+                    <button
+                      onClick={handlePreOrder}
+                      className="flex-1 py-4 text-base font-bold shadow-lg touch-target rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#128C7E] hover:to-[#075E54] text-white flex items-center justify-center gap-2.5 transition-all active:scale-95"
+                    >
+                      <MessageCircle className="w-5 h-5" />
+                      <span>Pre-Order via WhatsApp</span>
+                    </button>
+                  </>
+                )}
               </div>
 
               {/* Guarantees */}
