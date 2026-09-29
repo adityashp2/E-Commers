@@ -240,6 +240,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
                 {isAvailable ? (
                   <>
                     <button
+                      type="button"
                       onClick={(e) => handleAddToCart(e)}
                       className="btn-secondary flex-1 py-4 text-base font-bold touch-target"
                     >
@@ -247,6 +248,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
                       <span>{added ? 'Ditambahkan ke Keranjang!' : 'Tambah ke Keranjang'}</span>
                     </button>
                     <button
+                      type="button"
                       onClick={handleDirectOrder}
                       className="btn-primary flex-1 py-4 text-base font-bold shadow-lg touch-target"
                     >
