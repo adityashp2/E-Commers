@@ -169,13 +169,19 @@ export default function KontakSection() {
                 className="w-full h-full absolute inset-0"
               />
 
-              {/* Floating map address overlay badge */}
-              <div className="absolute top-4 left-4 right-4 sm:right-auto max-w-sm bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-md border border-white/80 pointer-events-none flex items-center gap-3 z-10">
-                <span className="w-2.5 h-2.5 rounded-full bg-mint animate-ping shrink-0" />
-                <p className="text-xs font-bold text-text truncate">
-                  Pinpoint Galeri Toko Buket
-                </p>
-              </div>
+              {/* Floating map address overlay badge (di pojok kanan bawah agar tidak bertumpuk kontrol iframe Google Maps) */}
+              <a
+                href={mapsDirectUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute bottom-4 right-4 bg-white/95 hover:bg-white backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-lg border border-border/80 flex items-center gap-2.5 z-10 transition-transform hover:scale-105 active:scale-95 group"
+              >
+                <span className="w-2.5 h-2.5 rounded-full bg-mint animate-pulse shrink-0" />
+                <span className="text-xs font-bold text-text group-hover:text-mint-dark transition-colors">
+                  Buka di Google Maps
+                </span>
+                <ExternalLink className="w-3.5 h-3.5 text-text-secondary group-hover:text-mint-dark" />
+              </a>
             </div>
           </div>
 

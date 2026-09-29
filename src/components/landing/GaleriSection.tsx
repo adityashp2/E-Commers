@@ -4,52 +4,44 @@ import { useEffect, useRef } from 'react';
 import { useLandingContent } from '@/hooks/useLandingContent';
 import SafeImage from '@/components/ui/SafeImage';
 
+export interface GalleryItem {
+  id?: string;
+  img: string;
+  label: string;
+  tag: string;
+}
+
 export default function GaleriSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const { content } = useLandingContent();
 
-  const allItems = [
-    {
-      src: content.galeri_item1_img,
-      alt: content.galeri_item1_label,
-      label: content.galeri_item1_label,
-      tag: content.galeri_item1_tag,
-    },
-    {
-      src: content.galeri_item2_img,
-      alt: content.galeri_item2_label,
-      label: content.galeri_item2_label,
-      tag: content.galeri_item2_tag,
-    },
-    {
-      src: content.galeri_item3_img,
-      alt: content.galeri_item3_label,
-      label: content.galeri_item3_label,
-      tag: content.galeri_item3_tag,
-    },
-    {
-      src: content.galeri_item4_img,
-      alt: content.galeri_item4_label,
-      label: content.galeri_item4_label,
-      tag: content.galeri_item4_tag,
-    },
-    {
-      src: content.galeri_item5_img,
-      alt: content.galeri_item5_label,
-      label: content.galeri_item5_label,
-      tag: content.galeri_item5_tag,
-    },
-    {
-      src: content.galeri_item6_img,
-      alt: content.galeri_item6_label,
-      label: content.galeri_item6_label,
-      tag: content.galeri_item6_tag,
-    },
-  ];
+  // Parsing galeri dinamis (jika ada JSON di content) atau fallback ke 6 item legacy
+  let dynamicItems: GalleryItem[] = [];
+  if (content.galeri_items_json) {
+    try {
+      const parsed = JSON.parse(content.galeri_items_json);
+      if (Array.isArray(parsed)) {
+        dynamicItems = parsed;
+      }
+    } catch {}
+  }
 
-  // Only display items that have an active photo and title (excludes items deleted by admin)
-  const galleryItems = allItems.filter(
-    (item) => item.src && item.src.trim() !== '' && item.label && item.label.trim() !== ''
+  // Jika belum ada galeri_items_json, kumpulkan item 1-6 legacy
+  if (dynamicItems.length === 0) {
+    const legacy = [
+      { img: content.galeri_item1_img, label: content.galeri_item1_label, tag: content.galeri_item1_tag },
+      { img: content.galeri_item2_img, label: content.galeri_item2_label, tag: content.galeri_item2_tag },
+      { img: content.galeri_item3_img, label: content.galeri_item3_label, tag: content.galeri_item3_tag },
+      { img: content.galeri_item4_img, label: content.galeri_item4_label, tag: content.galeri_item4_tag },
+      { img: content.galeri_item5_img, label: content.galeri_item5_label, tag: content.galeri_item5_tag },
+      { img: content.galeri_item6_img, label: content.galeri_item6_label, tag: content.galeri_item6_tag },
+    ];
+    dynamicItems = legacy;
+  }
+
+  // Hanya tampilkan yang fotonya valid dan label tidak kosong
+  const galleryItems = dynamicItems.filter(
+    (item) => item.img && item.img.trim() !== '' && item.label && item.label.trim() !== ''
   );
 
   useEffect(() => {
@@ -97,7 +89,7 @@ export default function GaleriSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-5 stagger-reveal">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3.5 sm:gap-5 stagger-reveal">
           {galleryItems.map((item, index) => (
             <div
               key={item.label + index}
@@ -109,8 +101,8 @@ export default function GaleriSection() {
               style={{ '--stagger-index': index } as React.CSSProperties}
             >
               <SafeImage
-                src={item.src}
-                alt={item.alt}
+                src={item.img}
+                alt={item.label}
                 loading="lazy"
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-108"
               />

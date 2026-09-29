@@ -52,6 +52,9 @@ export interface LandingContent {
   galeri_item6_label: string;
   galeri_item6_tag: string;
 
+  // Dynamic Galeri JSON (Bisa nambah tak terbatas)
+  galeri_items_json?: string;
+
   // Banner Header Katalog
   katalog_banner_bg: string;
   katalog_tag: string;
