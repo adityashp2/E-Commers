@@ -33,7 +33,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12">
           
           {/* Brand & Bio */}
-          <div className="md:col-span-5 space-y-3.5">
+          <div className="md:col-span-6 space-y-3.5">
             <Link
               href="/"
               className="inline-flex items-center gap-2 font-[family-name:var(--font-heading)] text-2xl font-bold tracking-tight text-white hover:text-mint transition-colors"
@@ -70,28 +70,8 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Navigasi Links */}
-          <div className="md:col-span-3 space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-mint-light">
-              Navigasi Halaman
-            </h4>
-            <ul className="grid grid-cols-2 md:grid-cols-1 gap-2.5">
-              {links.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-white/70 hover:text-mint transition-colors text-xs sm:text-sm inline-flex items-center gap-1.5"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-white/30" />
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
           {/* Info Operasional & Lokasi */}
-          <div className="md:col-span-4 space-y-3">
+          <div className="md:col-span-6 space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-pink">
               Workshop & Jam Buka
             </h4>
@@ -99,13 +79,13 @@ export default function Footer() {
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-mint shrink-0 mt-0.5" />
                 <span className="leading-snug">
-                  {settings.alamat_pengambilan || 'Jl. Pemuda No. 45, Menteng, Jakarta Pusat'}
+                  {settings.alamat_pengambilan || 'Aysflower (Florist/Toko Bunga Lampung), Bandar Lampung, Lampung'}
                 </span>
               </div>
               <div className="flex items-start gap-2.5">
                 <Clock className="w-4 h-4 text-pink shrink-0 mt-0.5" />
                 <span className="leading-snug">
-                  {settings.jam_operasional || 'Senin – Sabtu, 09:00 – 18:00'}
+                  {settings.jam_operasional || 'Senin – Sabtu, 09:00 – 18:00 WIB'}
                 </span>
               </div>
             </div>

@@ -5,9 +5,13 @@ export function buildWhatsAppMessage(data: CheckoutData): string {
   const itemLines = data.items
     .map((item, i) => {
       const subtotal = item.produk.harga * item.jumlah;
-      return `${i + 1}. ${item.produk.nama} x${item.jumlah} — ${formatRupiah(subtotal)}`;
+      let line = `${i + 1}. *${item.produk.nama}* x${item.jumlah} — ${formatRupiah(subtotal)}`;
+      if (item.produk.foto_url) {
+        line += `\n   📷 Foto Produk: ${item.produk.foto_url}`;
+      }
+      return line;
     })
-    .join('\n');
+    .join('\n\n');
 
   const total = data.items.reduce(
     (sum, item) => sum + item.produk.harga * item.jumlah,
@@ -15,17 +19,17 @@ export function buildWhatsAppMessage(data: CheckoutData): string {
   );
 
   let message = `Halo Kak, saya mau pesan:\n\n`;
-  message += `Nama: ${data.nama}\n`;
-  message += `Tanggal Pengambilan: ${formatTanggal(data.tanggal)}\n\n`;
-  message += `*DETAIL PESANAN*\n`;
+  message += `👤 *Nama Pemesan:* ${data.nama}\n`;
+  message += `📅 *Tanggal Pengambilan:* ${formatTanggal(data.tanggal)}\n\n`;
+  message += `💐 *DETAIL PRODUK & FOTO PESANAN:*\n`;
   message += `${itemLines}\n\n`;
-  message += `*TOTAL: ${formatRupiah(total)}*\n`;
+  message += `💰 *TOTAL PESANAN: ${formatRupiah(total)}*\n`;
 
-  if (data.catatan.trim()) {
-    message += `\nCatatan: ${data.catatan}\n`;
+  if (data.catatan && data.catatan.trim()) {
+    message += `📝 *Catatan Khusus:* ${data.catatan}\n`;
   }
 
-  message += `\nMohon kirimkan QRIS untuk pembayaran ya 🙏`;
+  message += `\nMohon konfirmasi pesanan dan kirimkan info QRIS untuk pembayaran ya Kak, terima kasih 🙏🌸`;
 
   return message;
 }
