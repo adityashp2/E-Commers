@@ -139,7 +139,7 @@ export const DEFAULT_LANDING_CONTENT: LandingContent = {
   kontak_deskripsi: 'Konsultasi buket impian atau ambil langsung pesanan Anda di galeri kami.',
   kontak_alamat: 'Aysflower (Florist/Toko Bunga Lampung), Bandar Lampung, Lampung',
   kontak_jam: 'Senin – Sabtu: 09:00 – 18:00 WIB',
-  kontak_wa: '081234567890',
+  kontak_wa: '085161204930',
   kontak_instagram: '@aysflower',
   kontak_maps_embed: 'https://maps.google.com/maps?q=Aysflower+Florist+Toko+Bunga+Lampung&t=&z=16&ie=UTF8&iwloc=&output=embed',
   kontak_maps_url: 'https://maps.google.com/?q=Aysflower+Florist+Toko+Bunga+Lampung',

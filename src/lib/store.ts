@@ -18,7 +18,7 @@ export interface StoreSettings {
 }
 
 export const DEFAULT_SETTINGS: StoreSettings = {
-  wa_number: '081234567890',
+  wa_number: '085161204930',
   min_hari_pesan: '1',
   alamat_pengambilan: 'Jl. Pemuda No. 45, Menteng, Jakarta Pusat, DKI Jakarta 10310',
   jam_operasional: 'Senin - Sabtu: 09:00 - 18:00 WIB',

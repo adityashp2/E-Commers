@@ -73,7 +73,7 @@ export default function AdminPengaturanPage() {
             type="tel"
             value={waNumber}
             onChange={(e) => setWaNumber(e.target.value)}
-            placeholder="081234567890"
+            placeholder="085161204930"
             className="input-field py-2.5 text-sm"
             required
           />

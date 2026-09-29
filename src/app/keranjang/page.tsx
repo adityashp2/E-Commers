@@ -35,7 +35,7 @@ export default function KeranjangPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isClient, setIsClient] = useState(false);
 
-  const waNumber = settings.wa_number || '081234567890';
+  const waNumber = settings.wa_number || '085161204930';
   const minDays = parseInt(settings.min_hari_pesan) || 1;
 
   // Popup Modal State after checkout
