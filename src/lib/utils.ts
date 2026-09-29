@@ -27,12 +27,6 @@ export function formatTanggal(dateStr: string): string {
   return date.toLocaleDateString('id-ID', options);
 }
 
-export function getMinDate(minDays: number): string {
-  const date = new Date();
-  date.setDate(date.getDate() + minDays);
-  return date.toISOString().split('T')[0];
-}
-
 export function cn(...classes: (string | boolean | undefined | null)[]): string {
   return classes.filter(Boolean).join(' ');
 }

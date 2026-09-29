@@ -21,7 +21,6 @@ import {
   ShieldCheck,
   Sparkles,
 } from 'lucide-react';
-import { createClient, withTimeout } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import { useSettings } from '@/lib/store';
 

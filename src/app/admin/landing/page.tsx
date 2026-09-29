@@ -16,7 +16,6 @@ import {
   Trash2,
   Plus,
   Layout,
-  ExternalLink,
 } from 'lucide-react';
 
 export interface DynamicGalleryItem {

@@ -17,17 +17,6 @@ export interface Produk {
   kategori?: Kategori;
 }
 
-export interface KontenLanding {
-  key: string;
-  value: string;
-  updated_at: string;
-}
-
-export interface Pengaturan {
-  key: string;
-  value: string;
-}
-
 export interface CartItem {
   produk: Produk;
   jumlah: number;
