@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { createBrowserClient } from '@supabase/ssr';
 import { Lock, Mail, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function AdminLoginPage() {
@@ -17,15 +17,25 @@ export default function AdminLoginPage() {
     setError('');
     setIsLoading(true);
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://yyikhtzbgcnnjpthugyv.supabase.co';
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5aWtodHpiZ2NubmpwdGh1Z3l2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2NDI1NTcsImV4cCI6MjEwNjIxODU1N30.WcOFwYOSpBkbuy9onc3-qie_0VMo1l6Mx4q5Jmh7gvk';
+
     try {
-      const supabase = createClient();
+      const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password: password.trim(),
       });
 
       if (authError || !data?.session) {
-        setError('Email atau password salah. Pastikan kredensial admin Anda valid.');
+        const msg = authError?.message || 'Email atau password salah.';
+        if (msg.toLowerCase().includes('email not confirmed')) {
+          setError('Email belum dikonfirmasi di Supabase. Centang "Auto Confirm User" saat membuat user.');
+        } else if (msg.toLowerCase().includes('invalid login')) {
+          setError('Email atau password salah.');
+        } else {
+          setError(msg);
+        }
         return;
       }
 
@@ -33,8 +43,9 @@ export default function AdminLoginPage() {
       document.cookie = 'admin_session=active; path=/; max-age=86400; SameSite=Lax';
       router.push('/admin/produk');
       router.refresh();
-    } catch {
-      setError('Terjadi kendala saat menghubungi server autentikasi.');
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : 'Koneksi gagal';
+      setError(`Gagal login: ${errMsg}`);
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +82,7 @@ export default function AdminLoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@toko.com"
+              placeholder="admin13@gmail.com"
               className="input-field py-2.5 text-sm"
               required
               autoComplete="email"
