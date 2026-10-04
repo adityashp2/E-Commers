@@ -25,6 +25,17 @@ export const DEFAULT_SETTINGS: StoreSettings = {
   instagram: '@toko.buket',
 };
 
+export function generateUUID(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 // -------------------------------------------------------------
 // 1. PRODUCTS STORE
 // -------------------------------------------------------------
@@ -54,7 +65,7 @@ export function saveStoredProducts(products: Produk[]) {
 
 export async function addOrUpdateProduct(product: Partial<Produk> & { nama: string }): Promise<Produk> {
   const current = getStoredProducts();
-  const id = product.id || `prod-${Date.now()}`;
+  const id = product.id || generateUUID();
   const slug = product.slug || product.nama.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + `-${Date.now().toString(36)}`;
   
   // Find category object if kategori_id is given
@@ -83,9 +94,10 @@ export async function addOrUpdateProduct(product: Partial<Produk> & { nama: stri
     updatedList = [fullProduct, ...current];
   }
 
+  // 1. Persist immediately to localStorage
   saveStoredProducts(updatedList);
 
-  // Unmark from deleted IDs if re-added
+  // 2. Unmark from deleted IDs if re-added
   try {
     const deletedKey = 'toko_buket_deleted_prod_ids';
     const deletedRaw = localStorage.getItem(deletedKey);
@@ -96,22 +108,13 @@ export async function addOrUpdateProduct(product: Partial<Produk> & { nama: stri
     }
   } catch {}
 
-  // Try sync to Supabase asynchronously
+  // 3. Sync to Supabase via server API route (bypasses RLS with service role key)
   try {
-    const supabase = createClient();
-    await withTimeout(
-      supabase.from('produk').upsert({
-        id: fullProduct.id,
-        nama: fullProduct.nama,
-        slug: fullProduct.slug,
-        kategori_id: fullProduct.kategori_id,
-        harga: fullProduct.harga,
-        deskripsi: fullProduct.deskripsi,
-        foto_url: fullProduct.foto_url,
-        status: fullProduct.status,
-      }),
-      1500
-    );
+    await fetch('/api/admin/produk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fullProduct),
+    });
   } catch {}
 
   return fullProduct;
@@ -133,10 +136,11 @@ export async function deleteStoredProduct(id: string) {
     }
   } catch {}
 
-  // Try sync to Supabase
+  // Sync delete to database via server endpoint
   try {
-    const supabase = createClient();
-    await withTimeout(supabase.from('produk').delete().eq('id', id), 1500);
+    await fetch(`/api/admin/produk?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
   } catch {}
 }
 
@@ -161,18 +165,38 @@ export function useProducts() {
             .from('produk')
             .select('*, kategori:kategori_id(id, nama)')
             .order('created_at', { ascending: false }),
-          1000
+          1200
         );
-        if (data && Array.isArray(data)) {
+
+        // ONLY merge if Supabase returned a valid array with items!
+        // NEVER overwrite or wipe out local products if Supabase returns empty []!
+        if (data && Array.isArray(data) && data.length > 0) {
           let deletedIds: string[] = [];
           try {
             const deletedRaw = localStorage.getItem('toko_buket_deleted_prod_ids');
             if (deletedRaw) deletedIds = JSON.parse(deletedRaw);
           } catch {}
 
-          const sanitized = data.filter((p) => !deletedIds.includes(p.id));
-          saveStoredProducts(sanitized);
-          setProducts(sanitized);
+          const currentLocal = getStoredProducts();
+          const productMap = new Map<string, Produk>();
+
+          // 1. Add DB products that were not deleted
+          for (const p of data) {
+            if (!deletedIds.includes(p.id)) {
+              productMap.set(p.id, p);
+            }
+          }
+
+          // 2. Add local products (local takes precedence so newly added products are NEVER lost!)
+          for (const p of currentLocal) {
+            if (!deletedIds.includes(p.id)) {
+              productMap.set(p.id, p);
+            }
+          }
+
+          const merged = Array.from(productMap.values());
+          saveStoredProducts(merged);
+          setProducts(merged);
         }
       } catch {}
     }
@@ -223,7 +247,7 @@ export function saveStoredCategories(categories: Kategori[]) {
 export async function addCategory(nama: string): Promise<Kategori> {
   const current = getStoredCategories();
   const newCat: Kategori = {
-    id: `cat-${Date.now()}`,
+    id: generateUUID(),
     nama: nama.trim(),
     created_at: new Date().toISOString(),
   };
@@ -232,8 +256,21 @@ export async function addCategory(nama: string): Promise<Kategori> {
   saveStoredCategories(updated);
 
   try {
-    const supabase = createClient();
-    await withTimeout(supabase.from('kategori').insert({ nama: newCat.nama }), 1500);
+    const deletedKey = 'toko_buket_deleted_cat_ids';
+    const deletedRaw = localStorage.getItem(deletedKey);
+    if (deletedRaw) {
+      const deletedIds: string[] = JSON.parse(deletedRaw);
+      const filtered = deletedIds.filter((dId) => dId !== newCat.id);
+      localStorage.setItem(deletedKey, JSON.stringify(filtered));
+    }
+  } catch {}
+
+  try {
+    await fetch('/api/admin/kategori', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newCat),
+    });
   } catch {}
 
   return newCat;
@@ -245,8 +282,11 @@ export async function updateCategory(id: string, nama: string) {
   saveStoredCategories(updated);
 
   try {
-    const supabase = createClient();
-    await withTimeout(supabase.from('kategori').update({ nama: nama.trim() }).eq('id', id), 1500);
+    await fetch('/api/admin/kategori', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, nama: nama.trim() }),
+    });
   } catch {}
 }
 
@@ -255,9 +295,21 @@ export async function deleteCategory(id: string) {
   const updated = current.filter((c) => c.id !== id);
   saveStoredCategories(updated);
 
+  // Track deleted IDs so background sync doesn't resurrect them
   try {
-    const supabase = createClient();
-    await withTimeout(supabase.from('kategori').delete().eq('id', id), 1500);
+    const deletedKey = 'toko_buket_deleted_cat_ids';
+    const deletedRaw = localStorage.getItem(deletedKey);
+    const deletedIds: string[] = deletedRaw ? JSON.parse(deletedRaw) : [];
+    if (!deletedIds.includes(id)) {
+      deletedIds.push(id);
+      localStorage.setItem(deletedKey, JSON.stringify(deletedIds));
+    }
+  } catch {}
+
+  try {
+    await fetch(`/api/admin/kategori?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
   } catch {}
 }
 
@@ -279,11 +331,35 @@ export function useCategories() {
         const supabase = createClient();
         const { data } = await withTimeout<{ data: Kategori[] | null }>(
           supabase.from('kategori').select('*').order('nama'),
-          1000
+          1200
         );
-        if (data && data.length > 0) {
-          saveStoredCategories(data);
-          setCategories(data);
+        if (data && Array.isArray(data) && data.length > 0) {
+          let deletedIds: string[] = [];
+          try {
+            const deletedRaw = localStorage.getItem('toko_buket_deleted_cat_ids');
+            if (deletedRaw) deletedIds = JSON.parse(deletedRaw);
+          } catch {}
+
+          const currentLocal = getStoredCategories();
+          const catMap = new Map<string, Kategori>();
+
+          // 1. Add DB categories
+          for (const c of data) {
+            if (!deletedIds.includes(c.id)) {
+              catMap.set(c.id, c);
+            }
+          }
+
+          // 2. Add local categories (so newly added local categories are NEVER lost)
+          for (const c of currentLocal) {
+            if (!deletedIds.includes(c.id)) {
+              catMap.set(c.id, c);
+            }
+          }
+
+          const merged = Array.from(catMap.values());
+          saveStoredCategories(merged);
+          setCategories(merged);
         }
       } catch {}
     }

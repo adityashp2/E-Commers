@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { createClient, withTimeout } from '@/lib/supabase/client';
 import { ArrowLeft, Loader2, Check } from 'lucide-react';
 import Link from 'next/link';
 import ImageUploadWithCompress from '@/components/admin/ImageUploadWithCompress';
@@ -62,13 +62,18 @@ export default function EditProdukPage() {
           const fileExt = fotoFile.name.split('.').pop() || 'webp';
           const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-          const { data: uploadData, error: uploadError } = await supabase.storage
+          const uploadPromise = supabase.storage
             .from('produk-images')
             .upload(fileName, fotoFile, {
               cacheControl: '31536000',
               contentType: fotoFile.type,
               upsert: false,
             });
+
+          const { data: uploadData, error: uploadError } = await withTimeout(
+            uploadPromise as unknown as Promise<{ data: { path: string } | null; error: Error | null }>,
+            3000
+          );
 
           if (!uploadError && uploadData) {
             const { data: urlData } = supabase.storage
