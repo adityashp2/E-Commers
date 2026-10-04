@@ -47,15 +47,14 @@ export default function KatalogPage() {
         {/* Page header dengan background gambar estetik bernuansa Rose Pink */}
         <div className="relative overflow-hidden py-12 sm:py-20 border-b border-pink-border/50 bg-[#2b1820]">
           {/* Background image & pink gradient overlay */}
-          <div
-            className="absolute inset-0 bg-cover bg-center opacity-45 transform scale-105 filter blur-[0.5px]"
-            style={{
-              backgroundImage: `url(${
-                content.katalog_banner_bg ||
-                'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&q=85'
-              })`,
-            }}
-          />
+          {content.katalog_banner_bg && content.katalog_banner_bg.trim() !== '' && (
+            <div
+              className="absolute inset-0 bg-cover bg-center opacity-45 transform scale-105 filter blur-[0.5px]"
+              style={{
+                backgroundImage: `url(${content.katalog_banner_bg.trim()})`,
+              }}
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-[#26131b]/95 via-[#3b1a29]/80 to-[#5a233b]/60" />
 
           {/* Ambient soft glow */}

@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { Produk } from '@/types';
 import { formatRupiah } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
-import { Plus } from 'lucide-react';
-import SafeImage, { FALLBACK_BOUQUET_IMG } from '@/components/ui/SafeImage';
+import { Plus, Flower2 } from 'lucide-react';
+import SafeImage from '@/components/ui/SafeImage';
 
 interface ProductCardProps {
   product: Produk;
@@ -37,15 +37,22 @@ export default function ProductCard({ product }: ProductCardProps) {
       href={`/produk/${product.slug}`}
       className="group block rounded-2xl overflow-hidden bg-white border border-border/80 shadow-[0_2px_10px_rgba(30,30,36,0.03)] hover:border-pink-border/60 hover:shadow-[0_16px_36px_-8px_rgba(255,182,201,0.35)] hover:-translate-y-1.5 transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)]"
     >
-      {/* Image container with SafeImage fallback */}
+      {/* Image container */}
       <div className="aspect-square relative overflow-hidden bg-pink/20">
-        <SafeImage
-          src={product.foto_url || FALLBACK_BOUQUET_IMG}
-          alt={product.nama}
-          className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
-          loading="lazy"
-          decoding="async"
-        />
+        {product.foto_url && product.foto_url.trim() !== '' ? (
+          <SafeImage
+            src={product.foto_url}
+            alt={product.nama}
+            className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center bg-pink/20 text-mint-dark/50">
+            <Flower2 className="w-8 h-8 opacity-40 mb-1" />
+            <span className="text-[10px] font-semibold text-text-secondary">Foto belum ada</span>
+          </div>
+        )}
 
         {/* Status badge */}
         {!isAvailable && (

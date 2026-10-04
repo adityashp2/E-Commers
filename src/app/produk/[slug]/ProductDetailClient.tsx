@@ -20,9 +20,10 @@ import {
   Minus,
   Package,
   MessageCircle,
+  Flower2,
 } from 'lucide-react';
 import Link from 'next/link';
-import SafeImage, { FALLBACK_BOUQUET_IMG } from '@/components/ui/SafeImage';
+import SafeImage from '@/components/ui/SafeImage';
 import { useSettings } from '@/lib/store';
 
 interface ProductDetailClientProps {
@@ -154,13 +155,20 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
             
             {/* Product Image */}
             <div className="relative rounded-3xl overflow-hidden bg-pink/20 border border-border/80 shadow-[0_10px_35px_rgba(30,30,36,0.06)] aspect-square">
-              <SafeImage
-                src={product.foto_url || FALLBACK_BOUQUET_IMG}
-                alt={product.nama}
-                className="w-full h-full object-cover"
-                loading="eager"
-                decoding="async"
-              />
+              {product.foto_url && product.foto_url.trim() !== '' ? (
+                <SafeImage
+                  src={product.foto_url}
+                  alt={product.nama}
+                  className="w-full h-full object-cover"
+                  loading="eager"
+                  decoding="async"
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-pink/20 text-mint-dark/50">
+                  <Flower2 className="w-16 h-16 opacity-40 mb-2" />
+                  <span className="text-sm font-semibold text-text-secondary">Foto belum tersedia</span>
+                </div>
+              )}
 
               {!isAvailable && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center">

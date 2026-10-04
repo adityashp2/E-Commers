@@ -53,7 +53,7 @@ export default function EditProdukPage() {
     setError('');
 
     try {
-      let finalFotoUrl = fotoUrl;
+      let finalFotoUrl: string | null = fotoUrl.trim() !== '' ? fotoUrl.trim() : null;
 
       // Try uploading to Supabase Storage if file exists
       if (fotoFile) {
@@ -90,7 +90,7 @@ export default function EditProdukPage() {
         kategori_id: kategoriId || null,
         harga: parseInt(harga) || 0,
         deskripsi: deskripsi.trim() || null,
-        foto_url: finalFotoUrl || null,
+        foto_url: finalFotoUrl,
         status,
       });
 
@@ -212,7 +212,7 @@ export default function EditProdukPage() {
             helperText="Otomatis dikompres ke WebP di bawah 200 KB"
             onImageSelected={(file, dataUrl) => {
               setFotoFile(file);
-              if (dataUrl) setFotoUrl(dataUrl);
+              setFotoUrl(dataUrl !== undefined ? dataUrl : '');
             }}
           />
         </div>

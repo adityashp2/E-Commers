@@ -17,17 +17,19 @@ export default function GaleriSection() {
 
   // Parsing galeri dinamis (jika ada JSON di content) atau fallback ke 6 item legacy
   let dynamicItems: GalleryItem[] = [];
-  if (content.galeri_items_json) {
+  let hasCustomGallery = false;
+  if (content.galeri_items_json !== undefined) {
     try {
       const parsed = JSON.parse(content.galeri_items_json);
       if (Array.isArray(parsed)) {
         dynamicItems = parsed;
+        hasCustomGallery = true;
       }
     } catch {}
   }
 
-  // Jika belum ada galeri_items_json, kumpulkan item 1-6 legacy
-  if (dynamicItems.length === 0) {
+  // Jika belum ada galeri_items_json sama sekali (fresh install), baru kumpulkan item 1-6 legacy
+  if (!hasCustomGallery) {
     const legacy = [
       { img: content.galeri_item1_img, label: content.galeri_item1_label, tag: content.galeri_item1_tag },
       { img: content.galeri_item2_img, label: content.galeri_item2_label, tag: content.galeri_item2_tag },
@@ -39,9 +41,9 @@ export default function GaleriSection() {
     dynamicItems = legacy;
   }
 
-  // Hanya tampilkan yang fotonya valid dan label tidak kosong
+  // Hanya tampilkan yang fotonya valid dan tidak kosong
   const galleryItems = dynamicItems.filter(
-    (item) => item.img && item.img.trim() !== '' && item.label && item.label.trim() !== ''
+    (item) => item.img && item.img.trim() !== ''
   );
 
   useEffect(() => {

@@ -22,6 +22,16 @@ export default function ImageUploadWithCompress({
   const [fileStats, setFileStats] = useState<{ orig: number; comp: number } | null>(null);
   const [error, setError] = useState('');
 
+  // Synchronize when initialUrl prop updates from outside
+  const [prevInitialUrl, setPrevInitialUrl] = useState(initialUrl);
+  if (initialUrl !== prevInitialUrl) {
+    setPrevInitialUrl(initialUrl);
+    setPreview(initialUrl || '');
+    if (!initialUrl) {
+      setFileStats(null);
+    }
+  }
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -61,7 +71,8 @@ export default function ImageUploadWithCompress({
   const handleRemove = () => {
     setPreview('');
     setFileStats(null);
-    onImageSelected(null);
+    setError('');
+    onImageSelected(null, '');
   };
 
   return (

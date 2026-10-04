@@ -39,16 +39,18 @@ export default function AdminLandingPage() {
 
       // Parse dynamic gallery items from JSON if available, or initialize from 6 legacy items
       let items: DynamicGalleryItem[] = [];
-      if (content.galeri_items_json) {
+      let hasCustomConfig = false;
+      if (content.galeri_items_json !== undefined) {
         try {
           const parsed = JSON.parse(content.galeri_items_json);
-          if (Array.isArray(parsed) && parsed.length > 0) {
+          if (Array.isArray(parsed)) {
             items = parsed;
+            hasCustomConfig = true;
           }
         } catch {}
       }
 
-      if (items.length === 0) {
+      if (!hasCustomConfig) {
         const legacy = [
           { id: '1', img: content.galeri_item1_img, label: content.galeri_item1_label, tag: content.galeri_item1_tag },
           { id: '2', img: content.galeri_item2_img, label: content.galeri_item2_label, tag: content.galeri_item2_tag },
@@ -58,9 +60,7 @@ export default function AdminLandingPage() {
           { id: '6', img: content.galeri_item6_img, label: content.galeri_item6_label, tag: content.galeri_item6_tag },
         ].filter((x) => x.img || x.label);
 
-        items = legacy.length > 0 ? legacy : [
-          { id: 'item-' + Date.now(), img: '', label: '', tag: '' }
-        ];
+        items = legacy.length > 0 ? legacy : [];
       }
 
       setGalleryList(items);
@@ -77,7 +77,9 @@ export default function AdminLandingPage() {
     file: File | null,
     dataUrl?: string
   ) => {
-    if (dataUrl) handleChange(key, dataUrl);
+    if (dataUrl !== undefined) {
+      handleChange(key, dataUrl);
+    }
     if (!file) return;
 
     try {
@@ -130,7 +132,9 @@ export default function AdminLandingPage() {
   };
 
   const handleUploadGalleryImage = async (id: string, file: File | null, dataUrl?: string) => {
-    if (dataUrl) handleUpdateGalleryItem(id, 'img', dataUrl);
+    if (dataUrl !== undefined) {
+      handleUpdateGalleryItem(id, 'img', dataUrl);
+    }
     if (!file) return;
 
     try {
@@ -466,11 +470,25 @@ export default function AdminLandingPage() {
               />
             </div>
 
-            <ImageUploadWithCompress
-              label="Foto Owner / Workshop Merangkai"
-              initialUrl={values.tentang_foto}
-              onImageSelected={(file, dataUrl) => handleUploadCompressedImage('tentang_foto', file, dataUrl)}
-            />
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-text">Foto Owner / Workshop Merangkai</span>
+                {values.tentang_foto && (
+                  <button
+                    type="button"
+                    onClick={() => handleChange('tentang_foto', '')}
+                    className="text-xs text-red-500 hover:text-red-700 font-semibold flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" /> Hapus Foto Ini
+                  </button>
+                )}
+              </div>
+              <ImageUploadWithCompress
+                label=""
+                initialUrl={values.tentang_foto}
+                onImageSelected={(file, dataUrl) => handleUploadCompressedImage('tentang_foto', file, dataUrl)}
+              />
+            </div>
           </div>
         )}
 
@@ -520,64 +538,84 @@ export default function AdminLandingPage() {
             </div>
 
             {/* List Galeri Dinamis */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {galleryList.map((item, idx) => (
-                <div key={item.id} className="p-4 rounded-2xl bg-canvas border border-border/70 space-y-3 relative group">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-text bg-white px-2.5 py-1 rounded-lg border border-border">
-                      Foto #{idx + 1}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveGalleryItem(item.id)}
-                      className="text-xs text-red-500 hover:text-red-700 font-semibold flex items-center gap-1 hover:underline transition-all"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      Hapus Foto
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-[11px] font-semibold text-text mb-1">Nama Buket</label>
-                      <input
-                        type="text"
-                        placeholder="Contoh: Buket Mawar Merah"
-                        value={item.label}
-                        onChange={(e) => handleUpdateGalleryItem(item.id, 'label', e.target.value)}
-                        className="input-field py-1.5 text-xs"
-                      />
+            {galleryList.length === 0 ? (
+              <div className="text-center py-10 border-2 border-dashed border-border/80 rounded-2xl p-6 bg-canvas/40 space-y-3">
+                <ImageIcon className="w-10 h-10 text-mint-dark/50 mx-auto" />
+                <p className="font-bold text-sm text-text">Belum Ada Foto Galeri</p>
+                <p className="text-xs text-text-secondary max-w-sm mx-auto">
+                  Semua foto galeri telah dihapus. Klik tombol di bawah untuk menambahkan foto karya buket baru.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleAddGalleryItem}
+                  className="btn-primary py-2.5 px-5 text-xs font-bold inline-flex items-center gap-1.5"
+                >
+                  <Plus className="w-4 h-4" />
+                  Tambah Foto Galeri Baru
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {galleryList.map((item, idx) => (
+                  <div key={item.id} className="p-4 rounded-2xl bg-canvas border border-border/70 space-y-3 relative group">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-text bg-white px-2.5 py-1 rounded-lg border border-border">
+                        Foto #{idx + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveGalleryItem(item.id)}
+                        className="text-xs text-red-500 hover:text-red-700 font-semibold flex items-center gap-1 hover:underline transition-all"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Hapus Foto
+                      </button>
                     </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold text-text mb-1">Tag Kategori</label>
-                      <input
-                        type="text"
-                        placeholder="Contoh: Bestseller / Wisuda"
-                        value={item.tag}
-                        onChange={(e) => handleUpdateGalleryItem(item.id, 'tag', e.target.value)}
-                        className="input-field py-1.5 text-xs"
-                      />
-                    </div>
-                  </div>
 
-                  <ImageUploadWithCompress
-                    label={`Unggah / Ganti Foto #${idx + 1}`}
-                    initialUrl={item.img}
-                    onImageSelected={(file, dataUrl) => handleUploadGalleryImage(item.id, file, dataUrl)}
-                  />
-                </div>
-              ))}
-            </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-text mb-1">Nama Buket</label>
+                        <input
+                          type="text"
+                          placeholder="Contoh: Buket Mawar Merah"
+                          value={item.label}
+                          onChange={(e) => handleUpdateGalleryItem(item.id, 'label', e.target.value)}
+                          className="input-field py-1.5 text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-text mb-1">Tag Kategori</label>
+                        <input
+                          type="text"
+                          placeholder="Contoh: Bestseller / Wisuda"
+                          value={item.tag}
+                          onChange={(e) => handleUpdateGalleryItem(item.id, 'tag', e.target.value)}
+                          className="input-field py-1.5 text-xs"
+                        />
+                      </div>
+                    </div>
+
+                    <ImageUploadWithCompress
+                      label={`Unggah / Ganti Foto #${idx + 1}`}
+                      initialUrl={item.img}
+                      onImageSelected={(file, dataUrl) => handleUploadGalleryImage(item.id, file, dataUrl)}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Tombol Tambah di Bawah Grid */}
-            <button
-              type="button"
-              onClick={handleAddGalleryItem}
-              className="w-full py-3.5 border-2 border-dashed border-mint/60 hover:border-mint-dark rounded-2xl text-xs font-bold text-mint-dark hover:bg-mint-light/40 flex items-center justify-center gap-2 transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              Tambah Foto Galeri Lagi (+1)
-            </button>
+            {galleryList.length > 0 && (
+              <button
+                type="button"
+                onClick={handleAddGalleryItem}
+                className="w-full py-3.5 border-2 border-dashed border-mint/60 hover:border-mint-dark rounded-2xl text-xs font-bold text-mint-dark hover:bg-mint-light/40 flex items-center justify-center gap-2 transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                Tambah Foto Galeri Lagi (+1)
+              </button>
+            )}
           </div>
         )}
 
@@ -620,12 +658,26 @@ export default function AdminLandingPage() {
               />
             </div>
 
-            <ImageUploadWithCompress
-              label="Foto Banner Latar Header Katalog"
-              initialUrl={values.katalog_banner_bg}
-              helperText="Rekomendasi rasio lebar 16:9 atau panorama (misal 1600x600 px)"
-              onImageSelected={(file, dataUrl) => handleUploadCompressedImage('katalog_banner_bg', file, dataUrl)}
-            />
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-text">Foto Banner Latar Header Katalog</span>
+                {values.katalog_banner_bg && (
+                  <button
+                    type="button"
+                    onClick={() => handleChange('katalog_banner_bg', '')}
+                    className="text-xs text-red-500 hover:text-red-700 font-semibold flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" /> Hapus Foto Banner
+                  </button>
+                )}
+              </div>
+              <ImageUploadWithCompress
+                label=""
+                initialUrl={values.katalog_banner_bg}
+                helperText="Rekomendasi rasio lebar 16:9 atau panorama (misal 1600x600 px)"
+                onImageSelected={(file, dataUrl) => handleUploadCompressedImage('katalog_banner_bg', file, dataUrl)}
+              />
+            </div>
           </div>
         )}
 

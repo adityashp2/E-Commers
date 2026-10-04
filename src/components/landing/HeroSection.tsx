@@ -42,7 +42,7 @@ export default function HeroSection() {
     ];
 
     const valid = raw.filter((s) => s.image && s.image.trim() !== '');
-    return valid.length > 0 ? valid : [{ ...raw[0], image: FALLBACK_BOUQUET_IMG }];
+    return valid;
   }, [
     content.hero_slide1_image,
     content.hero_slide1_badge,
@@ -197,88 +197,104 @@ export default function HeroSection() {
 
               {/* Main frame container */}
               <div className="relative overflow-hidden rounded-3xl sm:rounded-[2rem] bg-white border border-white/80 shadow-[0_20px_50px_-15px_rgba(30,30,36,0.15)] aspect-[3/3.5] sm:aspect-[4/3.2]">
-                
-                {/* Cross-fade cinema slides */}
-                {displaySlides.map((slide, index) => {
-                  const isActive = index === currentSlide;
-                  return (
-                    <div
-                      key={slide.badge + index}
-                      className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                        isActive
-                          ? 'opacity-100 z-10'
-                          : 'opacity-0 pointer-events-none z-0'
-                      }`}
-                    >
-                      <SafeImage
-                        src={slide.image}
-                        alt={slide.alt}
-                        className={`w-full h-full object-cover object-center transition-transform duration-[4000ms] ease-out ${
-                          isActive ? 'scale-105' : 'scale-100'
-                        }`}
-                        loading={index === 0 ? 'eager' : 'lazy'}
-                        decoding="async"
-                      />
+                {displaySlides.length === 0 ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-pink/30 via-canvas to-mint/20 p-6 text-center">
+                    <div className="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center mb-3">
+                      <Flower2 className="w-8 h-8 text-mint-dark" />
+                    </div>
+                    <p className="font-bold text-sm text-text">Slide Hero Toko Buket</p>
+                    <p className="text-xs text-text-secondary mt-1 max-w-xs">
+                      Foto slide hero belum ditambahkan atau telah dihapus di Admin Panel.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Cross-fade cinema slides */}
+                    {displaySlides.map((slide, index) => {
+                      const isActive = index === currentSlide;
+                      return (
+                        <div
+                          key={slide.badge + index}
+                          className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                            isActive
+                              ? 'opacity-100 z-10'
+                              : 'opacity-0 pointer-events-none z-0'
+                          }`}
+                        >
+                          <SafeImage
+                            src={slide.image}
+                            alt={slide.alt}
+                            className={`w-full h-full object-cover object-center transition-transform duration-[4000ms] ease-out ${
+                              isActive ? 'scale-105' : 'scale-100'
+                            }`}
+                            loading={index === 0 ? 'eager' : 'lazy'}
+                            decoding="async"
+                          />
 
-                      {/* Vignette depth gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                          {/* Vignette depth gradient */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
-                      {/* Animated Floating Glass Card on Slide */}
-                      <div className="absolute bottom-3 left-3 right-3 sm:bottom-5 sm:left-5 sm:right-5 z-20">
-                        <div className="glass-card px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-2xl flex items-center justify-between gap-3 shadow-lg border border-white/60">
-                          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                            <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-mint opacity-75" />
-                              <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-mint-dark" />
-                            </span>
-                            <div className="min-w-0">
-                              <p className="text-xs sm:text-sm font-bold text-text truncate">{slide.badge}</p>
-                              <p className="text-[10px] sm:text-[11px] text-text-secondary truncate">{slide.subtitle}</p>
+                          {/* Animated Floating Glass Card on Slide */}
+                          <div className="absolute bottom-3 left-3 right-3 sm:bottom-5 sm:left-5 sm:right-5 z-20">
+                            <div className="glass-card px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-2xl flex items-center justify-between gap-3 shadow-lg border border-white/60">
+                              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                                <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-mint opacity-75" />
+                                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-mint-dark" />
+                                </span>
+                                <div className="min-w-0">
+                                  <p className="text-xs sm:text-sm font-bold text-text truncate">{slide.badge}</p>
+                                  <p className="text-[10px] sm:text-[11px] text-text-secondary truncate">{slide.subtitle}</p>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                      );
+                    })}
 
-                {/* Next / Prev Floating Arrow Controls */}
-                <button
-                  type="button"
-                  onClick={prevSlide}
-                  aria-label="Slide sebelumnya"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 backdrop-blur-md text-text shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-mint hover:text-white hover:scale-110 active:scale-95"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={nextSlide}
-                  aria-label="Slide selanjutnya"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 backdrop-blur-md text-text shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-mint hover:text-white hover:scale-110 active:scale-95"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
+                    {/* Next / Prev Floating Arrow Controls */}
+                    {displaySlides.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={prevSlide}
+                          aria-label="Slide sebelumnya"
+                          className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 backdrop-blur-md text-text shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-mint hover:text-white hover:scale-110 active:scale-95"
+                        >
+                          <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={nextSlide}
+                          aria-label="Slide selanjutnya"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 backdrop-blur-md text-text shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-mint hover:text-white hover:scale-110 active:scale-95"
+                        >
+                          <ChevronRight className="w-5 h-5" />
+                        </button>
 
-                {/* Progress bar pagination indicator at top */}
-                <div className="absolute top-3 inset-x-3 sm:top-4 sm:inset-x-4 z-30 flex gap-1.5">
-                  {displaySlides.map((_, dotIdx) => (
-                    <button
-                      type="button"
-                      key={dotIdx}
-                      onClick={() => setCurrentSlide(dotIdx)}
-                      aria-label={`Ke slide ${dotIdx + 1}`}
-                      className="h-1 sm:h-1.5 flex-1 rounded-full bg-white/40 overflow-hidden cursor-pointer backdrop-blur-sm p-0 border-0"
-                    >
-                      <div
-                        className={`h-full bg-mint transition-all duration-500 rounded-full ${
-                          dotIdx === currentSlide ? 'w-full' : dotIdx < currentSlide ? 'w-full bg-white/80' : 'w-0'
-                        }`}
-                      />
-                    </button>
-                  ))}
-                </div>
-
+                        {/* Progress bar pagination indicator at top */}
+                        <div className="absolute top-3 inset-x-3 sm:top-4 sm:inset-x-4 z-30 flex gap-1.5">
+                          {displaySlides.map((_, dotIdx) => (
+                            <button
+                              type="button"
+                              key={dotIdx}
+                              onClick={() => setCurrentSlide(dotIdx)}
+                              aria-label={`Ke slide ${dotIdx + 1}`}
+                              className="h-1 sm:h-1.5 flex-1 rounded-full bg-white/40 overflow-hidden cursor-pointer backdrop-blur-sm p-0 border-0"
+                            >
+                              <div
+                                className={`h-full bg-mint transition-all duration-500 rounded-full ${
+                                  dotIdx === currentSlide ? 'w-full' : dotIdx < currentSlide ? 'w-full bg-white/80' : 'w-0'
+                                }`}
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           </div>

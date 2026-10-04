@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { formatRupiah } from '@/lib/utils';
-import { Plus, Pencil, Trash2, Search, Package } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Package, Flower2 } from 'lucide-react';
 import { useProducts, deleteStoredProduct } from '@/lib/store';
-import SafeImage, { FALLBACK_BOUQUET_IMG } from '@/components/ui/SafeImage';
+import SafeImage from '@/components/ui/SafeImage';
 
 export default function AdminProdukPage() {
   const { products, isLoading } = useProducts();
@@ -78,11 +78,17 @@ export default function AdminProdukPage() {
                 className="bg-white rounded-2xl p-4 border border-border/80 shadow-xs flex items-center gap-3.5"
               >
                 <div className="w-16 h-16 rounded-xl bg-pink/20 shrink-0 overflow-hidden border border-border/60">
-                  <SafeImage
-                    src={product.foto_url || FALLBACK_BOUQUET_IMG}
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
+                  {product.foto_url && product.foto_url.trim() !== '' ? (
+                    <SafeImage
+                      src={product.foto_url}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-mint-dark/50">
+                      <Flower2 className="w-6 h-6 opacity-40" />
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -141,11 +147,17 @@ export default function AdminProdukPage() {
                       <td className="p-4 pl-6">
                         <div className="flex items-center gap-3.5">
                           <div className="w-12 h-12 rounded-xl bg-pink/20 shrink-0 overflow-hidden border border-border/60">
-                            <SafeImage
-                              src={product.foto_url || FALLBACK_BOUQUET_IMG}
-                              alt=""
-                              className="w-full h-full object-cover"
-                            />
+                            {product.foto_url && product.foto_url.trim() !== '' ? (
+                              <SafeImage
+                                src={product.foto_url}
+                                alt=""
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-mint-dark/50">
+                                <Flower2 className="w-5 h-5 opacity-40" />
+                              </div>
+                            )}
                           </div>
                           <div>
                             <p className="font-bold text-text">{product.nama}</p>

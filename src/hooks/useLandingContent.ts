@@ -36,7 +36,14 @@ export function useLandingContent() {
               (map as Record<string, string>)[row.key] = row.value;
             }
           });
-          const merged = { ...DEFAULT_LANDING_CONTENT, ...map };
+          // Read local cache to retain explicitly cleared fields
+          let localCached: Partial<LandingContent> = {};
+          try {
+            const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (raw) localCached = JSON.parse(raw);
+          } catch {}
+
+          const merged = { ...DEFAULT_LANDING_CONTENT, ...map, ...localCached };
           setContent(merged);
           try {
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(merged));

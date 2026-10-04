@@ -33,14 +33,14 @@ export function getStoredProducts(): Produk[] {
   if (typeof window === 'undefined') return MOCK_PRODUCTS;
   try {
     const raw = localStorage.getItem(PRODUCTS_STORAGE_KEY);
-    if (!raw) {
+    if (raw === null) {
       localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(MOCK_PRODUCTS));
       return MOCK_PRODUCTS;
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : MOCK_PRODUCTS;
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return MOCK_PRODUCTS;
+    return [];
   }
 }
 
@@ -85,6 +85,17 @@ export async function addOrUpdateProduct(product: Partial<Produk> & { nama: stri
 
   saveStoredProducts(updatedList);
 
+  // Unmark from deleted IDs if re-added
+  try {
+    const deletedKey = 'toko_buket_deleted_prod_ids';
+    const deletedRaw = localStorage.getItem(deletedKey);
+    if (deletedRaw) {
+      const deletedIds: string[] = JSON.parse(deletedRaw);
+      const filteredDeleted = deletedIds.filter((deletedId) => deletedId !== id);
+      localStorage.setItem(deletedKey, JSON.stringify(filteredDeleted));
+    }
+  } catch {}
+
   // Try sync to Supabase asynchronously
   try {
     const supabase = createClient();
@@ -110,6 +121,17 @@ export async function deleteStoredProduct(id: string) {
   const current = getStoredProducts();
   const filtered = current.filter((p) => p.id !== id);
   saveStoredProducts(filtered);
+
+  // Track deleted IDs so background sync doesn't resurrect them if Supabase delete failed or timed out
+  try {
+    const deletedKey = 'toko_buket_deleted_prod_ids';
+    const deletedRaw = localStorage.getItem(deletedKey);
+    const deletedIds: string[] = deletedRaw ? JSON.parse(deletedRaw) : [];
+    if (!deletedIds.includes(id)) {
+      deletedIds.push(id);
+      localStorage.setItem(deletedKey, JSON.stringify(deletedIds));
+    }
+  } catch {}
 
   // Try sync to Supabase
   try {
@@ -141,9 +163,16 @@ export function useProducts() {
             .order('created_at', { ascending: false }),
           1000
         );
-        if (data && data.length > 0) {
-          saveStoredProducts(data);
-          setProducts(data);
+        if (data && Array.isArray(data)) {
+          let deletedIds: string[] = [];
+          try {
+            const deletedRaw = localStorage.getItem('toko_buket_deleted_prod_ids');
+            if (deletedRaw) deletedIds = JSON.parse(deletedRaw);
+          } catch {}
+
+          const sanitized = data.filter((p) => !deletedIds.includes(p.id));
+          saveStoredProducts(sanitized);
+          setProducts(sanitized);
         }
       } catch {}
     }
@@ -172,14 +201,14 @@ export function getStoredCategories(): Kategori[] {
   if (typeof window === 'undefined') return MOCK_CATEGORIES;
   try {
     const raw = localStorage.getItem(CATEGORIES_STORAGE_KEY);
-    if (!raw) {
+    if (raw === null) {
       localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(MOCK_CATEGORIES));
       return MOCK_CATEGORIES;
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : MOCK_CATEGORIES;
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return MOCK_CATEGORIES;
+    return [];
   }
 }
 

@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Palette, Heart } from 'lucide-react';
+import { Palette, Heart, Flower2 } from 'lucide-react';
 import { useLandingContent } from '@/hooks/useLandingContent';
-import SafeImage, { FALLBACK_BOUQUET_IMG } from '@/components/ui/SafeImage';
+import SafeImage from '@/components/ui/SafeImage';
 
 export default function TentangSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -44,14 +44,25 @@ export default function TentangSection() {
           {/* Image side */}
           <div className="slide-in-left">
             <div className="aspect-[4/5] sm:aspect-[3/4] rounded-2xl overflow-hidden relative shadow-lg border-4 border-white bg-white">
-              <SafeImage
-                src={content.tentang_foto || 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=800&q=80'}
-                alt="Perangkai buket sedang menyusun rangkaian bunga segar"
-                fallbackSrc={FALLBACK_BOUQUET_IMG}
-                className="w-full h-full object-cover"
-                loading="lazy"
-                decoding="async"
-              />
+              {content.tentang_foto && content.tentang_foto.trim() !== '' ? (
+                <SafeImage
+                  src={content.tentang_foto}
+                  alt="Perangkai buket sedang menyusun rangkaian bunga segar"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-pink/30 to-mint/20 text-center p-6">
+                  <div className="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center mb-3">
+                    <Flower2 className="w-8 h-8 text-mint-dark" />
+                  </div>
+                  <p className="font-bold text-sm text-text">Workshop Buket Kami</p>
+                  <p className="text-xs text-text-secondary mt-1 max-w-xs">
+                    Setiap rangkaian buket dirangkai khusus dengan dedikasi dan cinta untuk momen istimewa Anda.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

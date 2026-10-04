@@ -32,7 +32,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       const supabase = createClient();
       await supabase.auth.signOut();
     } catch {}
-    router.push('/xmin/login');
+    router.push('/admin/login');
     router.refresh();
   };
 
