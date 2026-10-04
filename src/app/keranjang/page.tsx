@@ -180,10 +180,10 @@ export default function KeranjangPage() {
                   return (
                     <div
                       key={item.produk.id}
-                      className="bg-white rounded-2xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(30,30,36,0.04)] border border-border/80 hover:border-pink-border/60 transition-all flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5"
+                      className="bg-white rounded-2xl p-3.5 sm:p-5 shadow-[0_4px_20px_rgba(30,30,36,0.04)] border border-border/80 hover:border-pink-border/60 transition-all flex flex-row items-start gap-3 sm:gap-5"
                     >
                       {/* Product image */}
-                      <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-pink/20 shrink-0 border border-border/60 relative">
+                      <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-xl sm:rounded-2xl overflow-hidden bg-pink/20 shrink-0 border border-border/60 relative">
                         {item.produk.foto_url ? (
                           <img
                             src={item.produk.foto_url}
@@ -199,7 +199,7 @@ export default function KeranjangPage() {
                       </div>
 
                       {/* Info & Quantity */}
-                      <div className="flex-1 min-w-0 w-full sm:w-auto">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <div>
                             <span className="text-[11px] font-bold text-mint-dark uppercase tracking-wider">

@@ -196,7 +196,7 @@ export default function HeroSection() {
               <div className="absolute -inset-3 bg-gradient-to-tr from-pink via-mint/30 to-pink/40 rounded-[2rem] sm:rounded-[2.5rem] blur-2xl opacity-40 transition-opacity duration-700 group-hover:opacity-60 -z-10" />
 
               {/* Main frame container */}
-              <div className="relative overflow-hidden rounded-3xl sm:rounded-[2rem] bg-white border border-white/80 shadow-[0_20px_50px_-15px_rgba(30,30,36,0.15)] aspect-[4/4.5] sm:aspect-[4/3.2]">
+              <div className="relative overflow-hidden rounded-3xl sm:rounded-[2rem] bg-white border border-white/80 shadow-[0_20px_50px_-15px_rgba(30,30,36,0.15)] aspect-[3/3.5] sm:aspect-[4/3.2]">
                 
                 {/* Cross-fade cinema slides */}
                 {displaySlides.map((slide, index) => {

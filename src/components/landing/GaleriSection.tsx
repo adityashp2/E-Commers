@@ -95,7 +95,7 @@ export default function GaleriSection() {
               key={item.label + index}
               className={`stagger-item group relative rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer bg-pink/20 border border-white/60 shadow-[0_4px_20px_rgba(30,30,36,0.04)] hover:shadow-[0_20px_40px_-12px_rgba(0,196,159,0.25)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 index === 0 && galleryItems.length >= 3
-                  ? 'row-span-1 aspect-[3/4] md:row-span-2 md:aspect-auto'
+                  ? 'aspect-[3/4] md:row-span-2 md:aspect-auto md:h-full'
                   : 'aspect-square'
               }`}
               style={{ '--stagger-index': index } as React.CSSProperties}

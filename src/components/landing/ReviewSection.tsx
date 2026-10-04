@@ -92,15 +92,15 @@ export default function ReviewSection() {
           </p>
 
           {/* Average rating summary badge */}
-          <div className="inline-flex items-center gap-3 bg-canvas px-5 py-2 rounded-2xl border border-border/80 shadow-xs">
-            <div className="flex items-center gap-1 text-amber-400">
+          <div className="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-3 bg-canvas px-4 sm:px-5 py-2 rounded-2xl border border-border/80 shadow-xs">
+            <div className="flex items-center gap-0.5 sm:gap-1 text-amber-400">
               {[1, 2, 3, 4, 5].map((s) => (
-                <Star key={s} className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
+                <Star key={s} className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current" />
               ))}
             </div>
-            <span className="font-extrabold text-base sm:text-lg text-text">{avgRating} / 5.0</span>
-            <span className="text-xs text-text-secondary font-medium">
-              ({reviews.length} Ulasan Terverifikasi)
+            <span className="font-extrabold text-sm sm:text-lg text-text">{avgRating} / 5.0</span>
+            <span className="text-[10px] sm:text-xs text-text-secondary font-medium">
+              ({reviews.length} Ulasan)
             </span>
           </div>
         </div>
@@ -113,16 +113,16 @@ export default function ReviewSection() {
           onTouchStart={() => setIsPaused(true)}
           onTouchEnd={() => setIsPaused(false)}
         >
-          <div className="flex items-center justify-between mb-4 px-2">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-mint animate-pulse" />
-              <span className="text-xs font-bold text-text-secondary uppercase tracking-wider">
-                Ulasan Pelanggan Terverifikasi (Slide Otomatis)
+          <div className="flex items-center justify-between mb-4 px-1 sm:px-2 gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="w-2.5 h-2.5 rounded-full bg-mint animate-pulse shrink-0" />
+              <span className="text-[10px] sm:text-xs font-bold text-text-secondary uppercase tracking-wider truncate">
+                Ulasan Terverifikasi
               </span>
             </div>
 
             {/* Slider Controls */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
                 onClick={handlePrev}
@@ -153,9 +153,9 @@ export default function ReviewSection() {
               {reviews.map((rev) => (
                 <div
                   key={rev.id}
-                  className="w-full shrink-0 px-1 sm:px-2"
+                  className="w-full shrink-0 px-0.5 sm:px-2"
                 >
-                  <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_4px_25px_rgba(30,30,36,0.04)] border border-border/80 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-[0_4px_25px_rgba(30,30,36,0.04)] border border-border/80 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-3">
                         <div className="w-12 h-12 rounded-2xl bg-pink/40 border border-pink-border/50 flex items-center justify-center font-bold text-text text-base shrink-0">
@@ -163,13 +163,13 @@ export default function ReviewSection() {
                         </div>
                         <div>
                           <h4 className="font-bold text-base text-text leading-tight">{rev.nama}</h4>
-                          <div className="flex items-center gap-2 mt-1">
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
                             {rev.buket_terpilih && (
-                              <span className="text-[11px] font-bold text-mint-dark bg-mint-light px-2.5 py-0.5 rounded-full">
+                              <span className="text-[10px] sm:text-[11px] font-bold text-mint-dark bg-mint-light px-2 sm:px-2.5 py-0.5 rounded-full truncate max-w-[150px]">
                                 {rev.buket_terpilih}
                               </span>
                             )}
-                            <span className="text-[11px] text-text-secondary">• {rev.tanggal}</span>
+                            <span className="text-[10px] sm:text-[11px] text-text-secondary">• {rev.tanggal}</span>
                           </div>
                         </div>
                       </div>
@@ -180,7 +180,7 @@ export default function ReviewSection() {
                     </div>
 
                     {/* Star Badge */}
-                    <div className="shrink-0 flex md:flex-col items-center md:items-end justify-between border-t md:border-t-0 md:border-l border-border/60 pt-3 md:pt-0 md:pl-6 gap-2">
+                    <div className="shrink-0 flex sm:flex-row md:flex-col items-center sm:items-center md:items-end justify-between border-t sm:border-t md:border-t-0 md:border-l border-border/60 pt-3 sm:pt-3 md:pt-0 md:pl-6 gap-2">
                       <div className="flex items-center text-amber-400 gap-1">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star
@@ -202,14 +202,14 @@ export default function ReviewSection() {
           </div>
 
           {/* Dots Indicator */}
-          <div className="flex items-center justify-center gap-1.5 mt-4">
+          <div className="flex items-center justify-center gap-1.5 mt-4 overflow-x-auto px-2 max-w-full scrollbar-none">
             {reviews.map((_, idx) => (
               <button
                 key={idx}
                 type="button"
                 onClick={() => setActiveSlide(idx)}
                 aria-label={`Slide ulasan ke-${idx + 1}`}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
+                className={`h-1.5 rounded-full transition-all duration-300 shrink-0 ${
                   idx === activeSlide ? 'w-6 bg-mint' : 'w-2 bg-border hover:bg-text-secondary'
                 }`}
               />

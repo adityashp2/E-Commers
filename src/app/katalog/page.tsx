@@ -65,7 +65,7 @@ export default function KatalogPage() {
             <span className="inline-block px-4 py-1.5 rounded-full bg-pink/30 backdrop-blur-md border border-pink/50 text-pink-light text-xs font-bold uppercase tracking-wider mb-3 shadow-xs">
               {content.katalog_tag || 'Koleksi Rangkaian'}
             </span>
-            <h1 className="font-[family-name:var(--font-heading)] text-3xl sm:text-5xl md:text-6xl font-extrabold text-white mb-3 tracking-tight drop-shadow-sm">
+            <h1 className="font-[family-name:var(--font-heading)] text-3xl sm:text-5xl md:text-6xl font-extrabold text-white mb-3 tracking-tight drop-shadow-sm leading-tight">
               {content.katalog_judul || 'Katalog Toko Buket'}
             </h1>
             <p className="text-white/90 text-xs sm:text-base max-w-xl mx-auto leading-relaxed">
@@ -77,38 +77,38 @@ export default function KatalogPage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
           {/* Controls: Search Bar + 2 Dropdown Selectors (Kategori & Urutan) */}
-          <div className="space-y-3.5 mb-6 sm:mb-8">
-            <div className="flex flex-col sm:flex-row gap-3">
+          <div className="space-y-3 mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
               {/* Search bar */}
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 text-text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <div className="relative flex-1 min-w-0">
+                <Search className="w-4 h-4 text-text-secondary absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Cari buket (misal: mawar, wisuda, cokelat)..."
-                  className="input-field pl-10 pr-10 text-sm py-2.5 rounded-full bg-white shadow-xs border-border/90"
+                  placeholder="Cari buket (misal: mawar, wisuda)..."
+                  className="input-field pl-9 sm:pl-10 pr-9 text-xs sm:text-sm py-2.5 rounded-full bg-white shadow-xs border-border/90 w-full"
                   aria-label="Cari produk"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text p-1"
+                    className="absolute right-2.5 sm:right-3.5 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text p-1"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
 
-              {/* 2 Dropdown Selectors persis model pill */}
-              <div className="flex items-center gap-2.5">
+              {/* 2 Dropdown Selectors */}
+              <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 min-w-0">
                 {/* 1. DROPDOWN PILIHAN KATEGORI */}
-                <div className="relative flex-1 sm:flex-none">
+                <div className="relative min-w-0">
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full sm:w-auto appearance-none bg-white border-2 border-mint hover:border-mint-dark rounded-full px-4 py-2.5 pr-9 text-xs sm:text-sm font-bold text-text focus:outline-none shadow-xs cursor-pointer transition-colors"
+                    className="w-full sm:w-auto appearance-none bg-white border border-mint/80 hover:border-mint-dark rounded-full pl-2.5 sm:pl-4 pr-7 sm:pr-8 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-text focus:outline-none shadow-xs cursor-pointer transition-colors truncate"
                   >
                     <option value="semua">Semua Kategori</option>
                     {categories.map((cat) => (
@@ -117,35 +117,35 @@ export default function KatalogPage() {
                       </option>
                     ))}
                   </select>
-                  <Filter className="w-3.5 h-3.5 text-mint-dark absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <Filter className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-mint-dark absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
 
                 {/* 2. DROPDOWN URUTKAN HARGA */}
-                <div className="relative flex-1 sm:flex-none">
+                <div className="relative min-w-0">
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as 'default' | 'termurah' | 'termahal')}
-                    className="w-full sm:w-auto appearance-none bg-white border-2 border-mint hover:border-mint-dark rounded-full px-4 py-2.5 pr-9 text-xs sm:text-sm font-bold text-text focus:outline-none shadow-xs cursor-pointer transition-colors"
+                    className="w-full sm:w-auto appearance-none bg-white border border-mint/80 hover:border-mint-dark rounded-full pl-2.5 sm:pl-4 pr-7 sm:pr-8 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-text focus:outline-none shadow-xs cursor-pointer transition-colors truncate"
                   >
-                    <option value="default">Urutkan: Rekomendasi</option>
-                    <option value="termurah">Harga: Termurah</option>
-                    <option value="termahal">Harga: Termahal</option>
+                    <option value="default">Rekomendasi</option>
+                    <option value="termurah">Harga Termurah</option>
+                    <option value="termahal">Harga Termahal</option>
                   </select>
-                  <ArrowUpDown className="w-3.5 h-3.5 text-mint-dark absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <ArrowUpDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-mint-dark absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
               </div>
             </div>
 
             {/* Status toggle & reset */}
-            <div className="flex items-center justify-between text-xs text-text-secondary pt-1 px-1">
-              <div className="flex items-center gap-2">
-                <span>
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text-secondary pt-1 px-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="whitespace-nowrap">
                   Menampilkan <strong className="text-text font-bold">{filteredProducts.length}</strong> produk
                 </span>
                 <button
                   type="button"
                   onClick={() => setStatusFilter((prev) => (prev === 'tersedia' ? 'semua' : 'tersedia'))}
-                  className={`px-3 py-1 rounded-full font-bold border transition-colors ${
+                  className={`px-3 py-1 rounded-full font-bold border transition-colors whitespace-nowrap ${
                     statusFilter === 'tersedia'
                       ? 'bg-mint text-text border-mint'
                       : 'bg-white text-text-secondary border-border hover:border-mint'
@@ -164,7 +164,7 @@ export default function KatalogPage() {
                     setStatusFilter('semua');
                     setSortBy('default');
                   }}
-                  className="text-mint-dark hover:underline font-semibold flex items-center gap-1"
+                  className="text-mint-dark hover:underline font-semibold flex items-center gap-1 whitespace-nowrap"
                 >
                   <X className="w-3 h-3" /> Reset Filter
                 </button>
@@ -174,7 +174,7 @@ export default function KatalogPage() {
 
           {/* Product grid / empty states */}
           {isLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-6 min-w-0">
               {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                 <div key={i} className="card p-3 sm:p-4">
                   <div className="skeleton aspect-square mb-3 rounded-xl" />
@@ -184,7 +184,7 @@ export default function KatalogPage() {
               ))}
             </div>
           ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-6 min-w-0">
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

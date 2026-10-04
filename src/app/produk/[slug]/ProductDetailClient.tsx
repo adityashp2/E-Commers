@@ -272,7 +272,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
               </div>
 
               {/* Guarantees */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-border/70 text-xs text-text-secondary">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-3 pt-4 border-t border-border/70 text-xs text-text-secondary">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-mint-dark shrink-0" />
                   <span>100% Produk Berkualitas</span>

@@ -56,7 +56,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Floating Category Pill */}
         {product.kategori && (
-          <span className="absolute top-2.5 left-2.5 bg-white/90 backdrop-blur-md text-text text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm border border-white/50">
+          <span className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 bg-white/95 backdrop-blur-md text-text text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full shadow-xs border border-white/60 max-w-[calc(100%-16px)] truncate pointer-events-none">
             {product.kategori.nama}
           </span>
         )}
@@ -66,20 +66,20 @@ export default function ProductCard({ product }: ProductCardProps) {
           <button
             type="button"
             onClick={handleAddToCart}
-            className="absolute bottom-2.5 right-2.5 bg-white text-text shadow-md hover:bg-mint hover:text-white rounded-xl p-2.5 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-110 active:scale-95 flex items-center justify-center z-10"
+            className="absolute bottom-2 right-2 sm:bottom-2.5 sm:right-2.5 bg-white text-text shadow-md hover:bg-mint hover:text-white rounded-xl p-2 sm:p-2.5 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-110 active:scale-95 flex items-center justify-center z-10"
             aria-label={`Tambah ${product.nama} ke keranjang`}
           >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
+            <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
           </button>
         )}
       </div>
 
       {/* Product Information */}
-      <div className="p-3.5 sm:p-4">
-        <h3 className="font-semibold text-text text-sm sm:text-[0.9375rem] mb-1.5 group-hover:text-mint-dark transition-colors line-clamp-2 leading-snug">
+      <div className="p-3 sm:p-4">
+        <h3 className="font-semibold text-text text-xs sm:text-[0.9375rem] mb-1 group-hover:text-mint-dark transition-colors line-clamp-2 leading-snug">
           {product.nama}
         </h3>
-        <p className="text-mint-dark font-extrabold text-base sm:text-lg tracking-tight">
+        <p className="text-mint-dark font-extrabold text-sm sm:text-lg tracking-tight">
           {formatRupiah(product.harga)}
         </p>
       </div>
