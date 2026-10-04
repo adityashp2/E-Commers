@@ -5,9 +5,10 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
-import { Package, LayoutDashboard, Settings, LogOut, Image, Menu, X, Tag } from 'lucide-react';
+import { Package, LayoutDashboard, Settings, LogOut, Image, Menu, X, Tag, TrendingUp } from 'lucide-react';
 
 const navItems = [
+  { href: '/admin/penjualan', label: 'Penjualan', icon: TrendingUp },
   { href: '/admin/produk', label: 'Produk', icon: Package },
   { href: '/admin/kategori', label: 'Kategori', icon: Tag },
   { href: '/admin/landing', label: 'Landing Page', icon: Image },
