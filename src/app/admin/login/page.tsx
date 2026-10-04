@@ -82,7 +82,7 @@ export default function AdminLoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin13@gmail.com"
+              placeholder="admin123@gmail.com"
               className="input-field py-2.5 text-sm"
               required
               autoComplete="email"

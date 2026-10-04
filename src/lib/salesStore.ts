@@ -78,23 +78,25 @@ export async function addPesanan(
   const current = getStoredOrders();
   saveStoredOrders([newOrder, ...current]);
 
-  // Try sync to Supabase
-  try {
-    const supabase = createClient();
-    await withTimeout(
-      supabase.from('pesanan').insert({
-        id: newOrder.id,
-        nama_pelanggan: newOrder.nama_pelanggan,
-        tanggal_pesan: newOrder.tanggal_pesan,
-        tanggal_pengambilan: newOrder.tanggal_pengambilan,
-        catatan: newOrder.catatan,
-        status: newOrder.status,
-        items: newOrder.items,
-        total: newOrder.total,
-      }),
-      2000
-    );
-  } catch {}
+  // Sync to Supabase asynchronously without blocking local state
+  (async () => {
+    try {
+      const supabase = createClient();
+      await withTimeout(
+        supabase.from('pesanan').insert({
+          id: newOrder.id,
+          nama_pelanggan: newOrder.nama_pelanggan,
+          tanggal_pesan: newOrder.tanggal_pesan,
+          tanggal_pengambilan: newOrder.tanggal_pengambilan,
+          catatan: newOrder.catatan,
+          status: newOrder.status,
+          items: newOrder.items,
+          total: newOrder.total,
+        }),
+        800
+      );
+    } catch {}
+  })();
 
   return newOrder;
 }
@@ -106,23 +108,27 @@ export async function updatePesanan(id: string, data: Partial<Pesanan>) {
   );
   saveStoredOrders(updated);
 
-  // Try sync to Supabase
-  try {
-    const supabase = createClient();
-    const payload: Record<string, unknown> = { ...data };
-    if (data.items) payload.total = data.items.reduce((s, i) => s + i.subtotal, 0);
-    await withTimeout(supabase.from('pesanan').update(payload).eq('id', id), 2000);
-  } catch {}
+  // Sync to Supabase asynchronously without blocking
+  (async () => {
+    try {
+      const supabase = createClient();
+      const payload: Record<string, unknown> = { ...data };
+      if (data.items) payload.total = data.items.reduce((s, i) => s + i.subtotal, 0);
+      await withTimeout(supabase.from('pesanan').update(payload).eq('id', id), 800);
+    } catch {}
+  })();
 }
 
 export async function deletePesanan(id: string) {
   const current = getStoredOrders();
   saveStoredOrders(current.filter((o) => o.id !== id));
 
-  try {
-    const supabase = createClient();
-    await withTimeout(supabase.from('pesanan').delete().eq('id', id), 2000);
-  } catch {}
+  (async () => {
+    try {
+      const supabase = createClient();
+      await withTimeout(supabase.from('pesanan').delete().eq('id', id), 800);
+    } catch {}
+  })();
 }
 
 // ─────────────────────────────────────────────
@@ -141,7 +147,7 @@ export function usePesanan() {
     reload();
     setIsLoading(false);
 
-    // Try sync from Supabase
+    // Try sync from Supabase with short timeout
     async function syncFromDb() {
       try {
         const supabase = createClient();
@@ -150,7 +156,7 @@ export function usePesanan() {
             .from('pesanan')
             .select('*')
             .order('created_at', { ascending: false }),
-          2000
+          800
         );
         if (data && data.length > 0) {
           saveStoredOrders(data);

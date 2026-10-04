@@ -26,18 +26,35 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   const handleLogout = async () => {
-    // Clear local admin session
-    document.cookie = 'admin_session=; path=/; max-age=0';
+    if (!window.confirm('Apakah Anda yakin ingin keluar dari Admin Panel?')) {
+      return;
+    }
+
     try {
       const supabase = createClient();
       await supabase.auth.signOut();
     } catch {}
-    router.push('/admin/login');
-    router.refresh();
+
+    // Clear local admin session
+    document.cookie = 'admin_session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+
+    // Clear all Supabase auth cookies
+    document.cookie.split(';').forEach((cookie) => {
+      const eqPos = cookie.indexOf('=');
+      const name = eqPos > -1 ? cookie.slice(0, eqPos).trim() : cookie.trim();
+      if (name.startsWith('sb-') || name.includes('auth-token') || name.includes('admin')) {
+        document.cookie = `${name}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+        if (typeof window !== 'undefined') {
+          document.cookie = `${name}=; path=/; domain=${window.location.hostname}; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+        }
+      }
+    });
+
+    window.location.href = '/xmin/login';
   };
 
   return (
-    <div className="min-h-screen bg-canvas flex flex-col lg:flex-row">
+    <div className="min-h-screen min-h-[100dvh] bg-canvas flex flex-col lg:flex-row">
       {/* Mobile sidebar backdrop overlay */}
       {isSidebarOpen && (
         <div
@@ -46,14 +63,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         />
       )}
 
-      {/* Sidebar (Drawer on mobile, Fixed Sidebar on desktop) */}
+      {/* Sidebar: Fixed height, pinned header & footer, only middle nav scrolls */}
       <aside
         className={cn(
-          'fixed lg:sticky top-0 left-0 h-screen w-72 max-w-[85vw] bg-white border-r border-border/80 z-50 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col shadow-xl lg:shadow-none',
+          'fixed lg:sticky top-0 left-0 h-screen h-[100dvh] max-h-screen max-h-[100dvh] w-72 max-w-[85vw] bg-white border-r border-border/80 z-50 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col shrink-0 overflow-hidden shadow-xl lg:shadow-none',
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
-        <div className="p-5 sm:p-6 border-b border-border/60 flex items-center justify-between">
+        {/* Header - Stays pinned at top */}
+        <div className="p-5 sm:p-6 border-b border-border/60 flex items-center justify-between shrink-0 bg-white">
           <Link href="/admin/produk" className="flex items-center gap-2.5">
             <span className="text-2xl">🌸</span>
             <div>
@@ -72,13 +90,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </button>
         </div>
 
-        <nav className="flex-1 p-3 sm:p-4 space-y-1.5 overflow-y-auto" aria-label="Admin navigation">
+        {/* Navigation - Only this area scrolls independently if items overflow */}
+        <nav className="flex-1 min-h-0 p-3 sm:p-4 space-y-1.5 overflow-y-auto overscroll-contain" aria-label="Admin navigation">
           {navItems.map((item) => {
             const isActive = pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={false}
                 onClick={() => setIsSidebarOpen(false)}
                 className={cn(
                   'flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all',
@@ -94,7 +114,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        <div className="p-4 border-t border-border/60 space-y-1">
+        {/* Footer actions - Stays pinned rock-solid at bottom */}
+        <div className="p-4 border-t border-border/60 space-y-1 shrink-0 mt-auto bg-white">
           <Link
             href="/"
             target="_blank"
