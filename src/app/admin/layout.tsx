@@ -54,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-canvas flex flex-col lg:flex-row">
+    <div className="h-screen h-[100dvh] bg-canvas flex flex-col lg:flex-row overflow-hidden">
       {/* Mobile sidebar backdrop overlay */}
       {isSidebarOpen && (
         <div
@@ -63,10 +63,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         />
       )}
 
-      {/* Sidebar: Fixed height, pinned header & footer, only middle nav scrolls */}
+      {/* Sidebar: Fixed full height on desktop, never scrolls with the page */}
       <aside
         className={cn(
-          'fixed lg:sticky top-0 left-0 h-screen h-[100dvh] max-h-screen max-h-[100dvh] w-72 max-w-[85vw] bg-white border-r border-border/80 z-50 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col shrink-0 overflow-hidden shadow-xl lg:shadow-none',
+          'fixed lg:static inset-y-0 left-0 h-full w-72 max-w-[85vw] bg-white border-r border-border/80 z-50 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col shrink-0 overflow-hidden shadow-xl lg:shadow-none',
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
@@ -114,7 +114,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        {/* Footer actions - Stays pinned rock-solid at bottom */}
+        {/* Footer actions - Stays pinned rock-solid at bottom of sidebar */}
         <div className="p-4 border-t border-border/60 space-y-1 shrink-0 mt-auto bg-white">
           <Link
             href="/"
@@ -134,10 +134,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </aside>
 
-      {/* Main content wrapper */}
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Main content wrapper - THE ONLY SCROLLABLE AREA */}
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
         {/* Mobile Top App Bar */}
-        <header className="lg:hidden bg-white/95 backdrop-blur-md border-b border-border/80 px-4 py-3.5 flex items-center justify-between sticky top-0 z-30">
+        <header className="lg:hidden bg-white/95 backdrop-blur-md border-b border-border/80 px-4 py-3.5 flex items-center justify-between sticky top-0 z-30 shrink-0">
           <button
             onClick={() => setIsSidebarOpen(true)}
             className="p-2 -ml-1 rounded-xl hover:bg-canvas text-text touch-target flex items-center justify-center"
