@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme inline {
+  /* Colors */
   --color-mint: #00C49F;
   --color-mint-dark: #00A882;
   --color-mint-light: #E6FAF5;
@@ -15,9 +16,43 @@
   --color-foreground: #1E1E24;
   --color-border: #E2E2E8;
   --color-surface: #FFFFFF;
-  --font-heading: 'Playfair Display', Georgia, serif;
-  --font-body: 'Poppins', system-ui, sans-serif;
+
+  /* Font tokens — maps to Next.js font variables with system fallbacks */
+  --font-heading: var(--font-heading, "Playfair Display", Georgia, serif);
+  --font-body: var(--font-body, "Poppins", system-ui, sans-serif);
 }
+
+/* ============================================================
+   KEYFRAMES — declared globally (outside @layer)
+   ============================================================ */
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+@keyframes cartFly {
+  0%   { opacity: 1;   transform: translate3d(0, 0, 0) scale(1.3); }
+  45%  { opacity: 1;   transform: translate3d(calc(var(--fly-dx) * 0.45), calc(var(--fly-dy) * 0.45 - 80px), 0) scale(1.5) rotate(18deg); }
+  85%  { opacity: 0.9; transform: translate3d(calc(var(--fly-dx) * 0.9), calc(var(--fly-dy) * 0.9), 0) scale(0.9) rotate(-10deg); }
+  100% { opacity: 0;   transform: translate3d(var(--fly-dx), var(--fly-dy), 0) scale(0.2) rotate(360deg); }
+}
+
+@keyframes spinWiggle {
+  0%, 100% { transform: rotate(0deg)  scale(1); }
+  50%       { transform: rotate(20deg) scale(1.15); }
+}
+
+@keyframes cartBadgeBounce {
+  0%, 100% { transform: scale(1); }
+  30%       { transform: scale(1.45) rotate(-8deg); }
+  60%       { transform: scale(0.9)  rotate(4deg); }
+  80%       { transform: scale(1.15); }
+}
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
 
 @layer base {
   html {
@@ -31,6 +66,13 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    min-width: 0;
+  }
+
+  /* Prevent media from causing horizontal page overflow */
+  img, svg, video, canvas, audio, iframe, embed, object {
+    max-width: 100%;
+    height: auto;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -73,10 +115,13 @@
   }
 }
 
+/* ============================================================
+   COMPONENTS
+   ============================================================ */
+
 @layer components {
-  /* ==========================================================================
-     MODERN INTERACTIVE BUTTONS WITH SPRING PHYSICS (redesign-existing-projects)
-     ========================================================================== */
+  /* -- Buttons ------------------------------------------------ */
+
   .btn-primary {
     display: inline-flex;
     align-items: center;
@@ -91,8 +136,11 @@
     cursor: pointer;
     border: 1px solid rgba(0, 0, 0, 0.04);
     box-shadow: 0 4px 14px rgba(0, 196, 159, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                background-color 0.2s ease;
     font-family: var(--font-body);
+    max-width: 100%;
   }
 
   .btn-primary:hover {
@@ -120,8 +168,11 @@
     border: 1.5px solid var(--color-border);
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(30, 30, 36, 0.04);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.2s ease;
     font-family: var(--font-body);
+    max-width: 100%;
   }
 
   .btn-secondary:hover {
@@ -149,8 +200,10 @@
     cursor: pointer;
     border: none;
     box-shadow: 0 4px 16px rgba(37, 211, 102, 0.3);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     font-family: var(--font-body);
+    max-width: 100%;
   }
 
   .btn-whatsapp:hover {
@@ -163,16 +216,17 @@
     transform: translateY(1px) scale(0.98);
   }
 
-  /* ==========================================================================
-     SPRING CARDS & GLASS REFRACTION
-     ========================================================================== */
+  /* -- Cards -------------------------------------------------- */
+
   .card {
     background: white;
     border-radius: 1.25rem;
     overflow: hidden;
     border: 1px solid var(--color-border);
     box-shadow: 0 2px 10px rgba(30, 30, 36, 0.04);
-    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.3s ease;
   }
 
   .card:hover {
@@ -182,7 +236,9 @@
   }
 
   .hover-lift {
-    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.3s ease;
   }
 
   .hover-lift:hover {
@@ -194,13 +250,21 @@
     transform: translateY(-1px) scale(0.99);
   }
 
-  /* ==========================================================================
-     CUTTING-EDGE SCROLL REVEALS & HARDWARE ACCELERATED ANIMATION
-     ========================================================================== */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 10px 30px -5px rgba(30, 30, 36, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  }
+
+  /* -- Scroll Reveal ------------------------------------------ */
+
   .reveal {
     opacity: 0;
     transform: translateY(30px) scale(0.98);
-    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     will-change: transform, opacity;
   }
 
@@ -212,7 +276,8 @@
   .slide-in-left {
     opacity: 0;
     transform: translate3d(-50px, 0, 0);
-    transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
     will-change: transform, opacity;
   }
 
@@ -224,7 +289,8 @@
   .slide-in-right {
     opacity: 0;
     transform: translate3d(50px, 0, 0);
-    transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
     will-change: transform, opacity;
   }
 
@@ -233,11 +299,11 @@
     transform: translate3d(0, 0, 0);
   }
 
-  /* Stagger system using hardware translate3d */
   .stagger-reveal > .stagger-item {
     opacity: 0;
     transform: translate3d(0, 32px, 0) scale(0.96);
-    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
     transition-delay: calc(var(--stagger-index, 0) * 110ms);
     will-change: transform, opacity;
   }
@@ -247,33 +313,31 @@
     transform: translate3d(0, 0, 0) scale(1);
   }
 
-  /* Glass refractor card with 1px inner highlight */
-  .glass-card {
-    background: rgba(255, 255, 255, 0.82);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 10px 30px -5px rgba(30, 30, 36, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.9);
-  }
+  /* -- Typography --------------------------------------------- */
 
   .section-title {
     font-family: var(--font-heading);
-    font-size: 2.25rem;
+    font-size: clamp(1.625rem, 3.5vw + 0.5rem, 2.25rem);
     font-weight: 700;
     color: var(--color-text);
     margin-bottom: 0.5rem;
     letter-spacing: -0.02em;
+    overflow-wrap: break-word;
     text-wrap: balance;
+    line-height: 1.22;
   }
 
   .section-subtitle {
-    font-size: 1rem;
+    font-size: clamp(0.875rem, 1.2vw + 0.45rem, 1rem);
     color: var(--color-text-secondary);
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
     max-width: 32rem;
     line-height: 1.6;
+    overflow-wrap: break-word;
     text-wrap: pretty;
   }
+
+  /* -- Form --------------------------------------------------- */
 
   .input-field {
     width: 100%;
@@ -292,6 +356,8 @@
     box-shadow: 0 0 0 4px rgba(0, 196, 159, 0.15);
     outline: none;
   }
+
+  /* -- Badges ------------------------------------------------- */
 
   .badge-tersedia {
     display: inline-flex;
@@ -317,6 +383,8 @@
     border-radius: 9999px;
   }
 
+  /* -- Skeleton ----------------------------------------------- */
+
   .skeleton {
     background: linear-gradient(90deg, var(--color-border) 25%, #EAEAEC 50%, var(--color-border) 75%);
     background-size: 200% 100%;
@@ -324,61 +392,21 @@
     border-radius: 0.75rem;
   }
 
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
+  /* -- Utilities ---------------------------------------------- */
 
   .touch-target {
     min-width: 44px;
     min-height: 44px;
   }
 
-  /* ==========================================================================
-     LOMPAT KE KERANJANG ANIMATION (PARABOLIC SPRING)
-     ========================================================================== */
-  @keyframes cartFly {
-    0% {
-      opacity: 1;
-      transform: translate3d(0, 0, 0) scale(1.3);
-    }
-    45% {
-      opacity: 1;
-      transform: translate3d(calc(var(--fly-dx) * 0.45), calc(var(--fly-dy) * 0.45 - 80px), 0) scale(1.5) rotate(18deg);
-    }
-    85% {
-      opacity: 0.9;
-      transform: translate3d(calc(var(--fly-dx) * 0.9), calc(var(--fly-dy) * 0.9), 0) scale(0.9) rotate(-10deg);
-    }
-    100% {
-      opacity: 0;
-      transform: translate3d(var(--fly-dx), var(--fly-dy), 0) scale(0.2) rotate(360deg);
-    }
+  /* Responsive table scroll wrapper */
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
-  @keyframes spinWiggle {
-    0%, 100% {
-      transform: rotate(0deg) scale(1);
-    }
-    50% {
-      transform: rotate(20deg) scale(1.15);
-    }
-  }
-
-  @keyframes cartBadgeBounce {
-    0%, 100% {
-      transform: scale(1);
-    }
-    30% {
-      transform: scale(1.45) rotate(-8deg);
-    }
-    60% {
-      transform: scale(0.9) rotate(4deg);
-    }
-    80% {
-      transform: scale(1.15);
-    }
-  }
+  /* -- Cart animations ---------------------------------------- */
 
   .animate-cart-fly {
     animation: cartFly 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
@@ -394,6 +422,10 @@
   }
 }
 
+/* ============================================================
+   ACCESSIBILITY: PREFERS-REDUCED-MOTION (declared at root)
+   ============================================================ */
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -408,7 +440,8 @@
   .stagger-reveal > .stagger-item,
   .slide-in-left,
   .slide-in-right {
-    opacity: 1;
-    transform: none;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }

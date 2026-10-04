@@ -130,8 +130,8 @@ export default function HeroSection() {
               </span>
             </div>
 
-            {/* Headline with modern typography */}
-            <h1 className="slide-in-left font-[family-name:var(--font-heading)] text-3xl sm:text-5xl lg:text-6xl font-extrabold text-text leading-[1.12] mb-6 tracking-tight">
+            {/* Headline with modern responsive typography */}
+            <h1 className="slide-in-left font-[family-name:var(--font-heading)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-text leading-[1.15] mb-6 tracking-tight">
               {content.hero_judul}{' '}
               <span className="relative inline-block text-mint-dark">
                 {content.hero_highlight}
@@ -146,39 +146,39 @@ export default function HeroSection() {
               </span>
             </h1>
 
-            <p className="slide-in-left text-text-secondary text-base sm:text-lg leading-relaxed mb-8 max-w-xl">
+            <p className="slide-in-left text-text-secondary text-sm sm:text-base lg:text-lg leading-relaxed mb-8 max-w-xl">
               {content.hero_deskripsi}
             </p>
 
             {/* CTA Group with modern magnetic feel */}
-            <div className="reveal flex flex-col sm:flex-row gap-3.5 sm:gap-4 mb-10">
+            <div className="reveal flex flex-col sm:flex-row gap-3 sm:gap-4 mb-10">
               <Link
                 href="/katalog"
-                className="btn-primary text-center group py-4 px-8 text-base touch-target"
+                className="btn-primary text-center group py-3.5 sm:py-4 px-6 sm:px-8 text-sm sm:text-base touch-target w-full sm:w-auto"
               >
                 <span>Lihat Katalog Produk</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 href="/#tentang"
-                className="btn-secondary text-center py-4 px-8 text-base touch-target"
+                className="btn-secondary text-center py-3.5 sm:py-4 px-6 sm:px-8 text-sm sm:text-base touch-target w-full sm:w-auto"
               >
                 Kenali Toko Kami
               </Link>
             </div>
 
             {/* Trust points */}
-            <div className="reveal flex flex-wrap items-center gap-6 sm:gap-8 pt-4 border-t border-border/80 text-text-secondary text-sm">
+            <div className="reveal flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-6 lg:gap-8 pt-4 border-t border-border/80 text-text-secondary text-xs sm:text-sm">
               <div className="flex items-center gap-2.5">
-                <Flower2 className="w-5 h-5 text-mint-dark shrink-0" />
+                <Flower2 className="w-4 h-4 sm:w-5 sm:h-5 text-mint-dark shrink-0" />
                 <span>Bunga & Bahan Segar Pilihan</span>
               </div>
               <div className="flex items-center gap-2.5">
-                <Gift className="w-5 h-5 text-pink shrink-0" />
+                <Gift className="w-4 h-4 sm:w-5 sm:h-5 text-pink shrink-0" />
                 <span>Bisa Custom Desain & Pesan</span>
               </div>
               <div className="flex items-center gap-2.5">
-                <MessageCircle className="w-5 h-5 text-mint shrink-0" />
+                <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-mint shrink-0" />
                 <span>Konsultasi Cepat via WhatsApp</span>
               </div>
             </div>
