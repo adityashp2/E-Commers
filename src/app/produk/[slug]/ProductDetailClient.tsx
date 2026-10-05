@@ -21,6 +21,8 @@ import {
   Package,
   MessageCircle,
   Flower2,
+  Clock,
+  Calendar,
 } from 'lucide-react';
 import Link from 'next/link';
 import SafeImage from '@/components/ui/SafeImage';
@@ -85,9 +87,12 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
   }
 
   const isAvailable = product.status === 'tersedia';
+  const isPo = product.status === 'po';
+  const isHabis = product.status === 'habis';
+  const isOrderable = isAvailable || isPo;
 
   const handleAddToCart = (e?: React.MouseEvent) => {
-    if (!isAvailable) return;
+    if (!isOrderable) return;
     if (e) {
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       window.dispatchEvent(
@@ -105,7 +110,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
   };
 
   const handleDirectOrder = () => {
-    if (!isAvailable) return;
+    if (!isOrderable) return;
     addItem(product, jumlah);
     router.push('/keranjang');
   };
@@ -170,7 +175,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
                 </div>
               )}
 
-              {!isAvailable && (
+              {isHabis && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center">
                   <span className="badge-habis text-base px-5 py-2.5 shadow-lg">Stok Habis</span>
                 </div>
@@ -179,6 +184,12 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
               {product.kategori && (
                 <span className="absolute top-4 left-4 bg-white/95 backdrop-blur-md text-text text-xs font-bold px-3 py-1.5 rounded-full shadow-sm border border-white/60">
                   {product.kategori.nama}
+                </span>
+              )}
+
+              {isPo && (
+                <span className="absolute top-12 left-4 bg-amber-500/95 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-xs border border-amber-300/60 flex items-center gap-1">
+                  <Clock className="w-3 h-3" /> PO (H-7)
                 </span>
               )}
 
@@ -195,9 +206,26 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
             {/* Product Details */}
             <div className="space-y-6">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-mint-dark mb-1 block">
-                  {product.kategori?.nama || 'Koleksi Buket'}
-                </span>
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <span className="text-xs font-bold uppercase tracking-wider text-mint-dark">
+                    {product.kategori?.nama || 'Koleksi Buket'}
+                  </span>
+                  {isPo && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                      <Clock className="w-3 h-3 text-amber-600" /> Pre-Order (Pemesanan min. H-7)
+                    </span>
+                  )}
+                  {isAvailable && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-mint-light text-mint-dark">
+                      Ready Stock
+                    </span>
+                  )}
+                  {isHabis && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700">
+                      Stok Habis
+                    </span>
+                  )}
+                </div>
                 <h1 className="font-[family-name:var(--font-heading)] text-2xl sm:text-4xl font-extrabold text-text leading-tight mb-3">
                   {product.nama}
                 </h1>
@@ -216,8 +244,21 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
                 </p>
               </div>
 
+              {/* Pre-Order Notice Box */}
+              {isPo && (
+                <div className="bg-amber-50/90 border border-amber-200/90 rounded-2xl p-4 text-xs sm:text-sm text-amber-950 space-y-1.5 shadow-xs">
+                  <div className="flex items-center gap-2 font-bold text-amber-800">
+                    <Calendar className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>Ketentuan Pre-Order (PO)</span>
+                  </div>
+                  <p className="text-amber-900/90 leading-relaxed text-xs">
+                    Buket ini dirangkai khusus sesuai pesanan. Tanggal pengambilan/pengiriman minimal <strong>7 hari ke depan (H-7)</strong> saat Anda mengisi jadwal pengambilan di keranjang belanja.
+                  </p>
+                </div>
+              )}
+
               {/* Quantity Stepper */}
-              {isAvailable && (
+              {isOrderable && (
                 <div className="flex items-center gap-4">
                   <span className="text-sm font-bold text-text">Jumlah:</span>
                   <div className="flex items-center bg-canvas rounded-2xl p-1.5 border border-border/80">
@@ -245,7 +286,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                {isAvailable ? (
+                {isOrderable ? (
                   <>
                     <button
                       type="button"
@@ -253,14 +294,14 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
                       className="btn-secondary flex-1 py-4 text-base font-bold touch-target"
                     >
                       <ShoppingBag className="w-5 h-5 text-mint-dark" />
-                      <span>{added ? 'Ditambahkan ke Keranjang!' : 'Tambah ke Keranjang'}</span>
+                      <span>{added ? 'Ditambahkan ke Keranjang!' : isPo ? 'Tambah PO ke Keranjang' : 'Tambah ke Keranjang'}</span>
                     </button>
                     <button
                       type="button"
                       onClick={handleDirectOrder}
                       className="btn-primary flex-1 py-4 text-base font-bold shadow-lg touch-target"
                     >
-                      <span>Pesan Sekarang</span>
+                      <span>{isPo ? 'Pesan Pre-Order (H-7)' : 'Pesan Sekarang'}</span>
                     </button>
                   </>
                 ) : (
@@ -273,7 +314,7 @@ export default function ProductDetailClient({ slug, initialProduct }: ProductDet
                       className="flex-1 py-4 text-base font-bold shadow-lg touch-target rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#128C7E] hover:to-[#075E54] text-white flex items-center justify-center gap-2.5 transition-all active:scale-95"
                     >
                       <MessageCircle className="w-5 h-5" />
-                      <span>Pre-Order via WhatsApp</span>
+                      <span>Tanya Stok via WhatsApp</span>
                     </button>
                   </>
                 )}

@@ -15,7 +15,7 @@ export default function KatalogPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('semua');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'default' | 'termurah' | 'termahal'>('default');
-  const [statusFilter, setStatusFilter] = useState<'semua' | 'tersedia'>('semua');
+  const [statusFilter, setStatusFilter] = useState<'semua' | 'tersedia' | 'po'>('semua');
 
   const isLoading = isProductsLoading || isCategoriesLoading;
 
@@ -27,7 +27,10 @@ export default function KatalogPage() {
         searchQuery === '' ||
         p.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.deskripsi?.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchStatus = statusFilter === 'semua' || p.status === 'tersedia';
+      const matchStatus =
+        statusFilter === 'semua' ||
+        (statusFilter === 'tersedia' && p.status === 'tersedia') ||
+        (statusFilter === 'po' && p.status === 'po');
       return matchCategory && matchSearch && matchStatus;
     });
 
@@ -141,17 +144,41 @@ export default function KatalogPage() {
                 <span className="whitespace-nowrap">
                   Menampilkan <strong className="text-text font-bold">{filteredProducts.length}</strong> produk
                 </span>
-                <button
-                  type="button"
-                  onClick={() => setStatusFilter((prev) => (prev === 'tersedia' ? 'semua' : 'tersedia'))}
-                  className={`px-3 py-1 rounded-full font-bold border transition-colors whitespace-nowrap ${
-                    statusFilter === 'tersedia'
-                      ? 'bg-mint text-text border-mint'
-                      : 'bg-white text-text-secondary border-border hover:border-mint'
-                  }`}
-                >
-                  {statusFilter === 'tersedia' ? '✓ Hanya Tersedia' : 'Semua Status'}
-                </button>
+                <div className="inline-flex items-center gap-1 bg-white p-0.5 rounded-full border border-border/80 text-[11px] font-bold shadow-2xs">
+                  <button
+                    type="button"
+                    onClick={() => setStatusFilter('semua')}
+                    className={`px-3 py-1 rounded-full transition-colors whitespace-nowrap ${
+                      statusFilter === 'semua'
+                        ? 'bg-text text-white'
+                        : 'text-text-secondary hover:text-text'
+                    }`}
+                  >
+                    Semua
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStatusFilter('tersedia')}
+                    className={`px-3 py-1 rounded-full transition-colors whitespace-nowrap ${
+                      statusFilter === 'tersedia'
+                        ? 'bg-mint-light text-mint-dark font-extrabold'
+                        : 'text-text-secondary hover:text-text'
+                    }`}
+                  >
+                    Ready Stock
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStatusFilter('po')}
+                    className={`px-3 py-1 rounded-full transition-colors whitespace-nowrap ${
+                      statusFilter === 'po'
+                        ? 'bg-amber-100 text-amber-900 border border-amber-300 font-extrabold'
+                        : 'text-text-secondary hover:text-text'
+                    }`}
+                  >
+                    Pre-Order (H-7)
+                  </button>
+                </div>
               </div>
 
               {(selectedCategory !== 'semua' || searchQuery !== '' || statusFilter !== 'semua' || sortBy !== 'default') && (

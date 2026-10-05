@@ -12,7 +12,7 @@ export interface Produk {
   harga: number;
   deskripsi: string | null;
   foto_url: string | null;
-  status: 'tersedia' | 'habis';
+  status: 'tersedia' | 'po' | 'habis';
   created_at: string;
   kategori?: Kategori;
 }

@@ -32,8 +32,8 @@ export default function ProdukUnggulanSection() {
     return () => observer.disconnect();
   }, [isLoading, products]);
 
-  // Take top 4 available products
-  const featured = products.filter((p) => p.status === 'tersedia').slice(0, 4);
+  // Take top 4 orderable products (ready stock or pre-order)
+  const featured = products.filter((p) => p.status === 'tersedia' || p.status === 'po').slice(0, 4);
 
   return (
     <section

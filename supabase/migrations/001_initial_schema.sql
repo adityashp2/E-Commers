@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS produk (
   harga INTEGER NOT NULL CHECK (harga >= 0),
   deskripsi TEXT,
   foto_url TEXT,
-  status VARCHAR(20) DEFAULT 'tersedia' CHECK (status IN ('tersedia', 'habis')),
+  status VARCHAR(20) DEFAULT 'tersedia' CHECK (status IN ('tersedia', 'po', 'habis')),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

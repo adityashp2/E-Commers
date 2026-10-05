@@ -14,11 +14,14 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
   const isAvailable = product.status === 'tersedia';
+  const isPo = product.status === 'po';
+  const isOrderable = isAvailable || isPo;
+  const isHabis = product.status === 'habis';
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (isAvailable) {
+    if (isOrderable) {
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       window.dispatchEvent(
         new CustomEvent('fly-to-cart', {
@@ -54,22 +57,29 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
 
-        {/* Status badge */}
-        {!isAvailable && (
+        {/* Status Habis overlay */}
+        {isHabis && (
           <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
             <span className="badge-habis text-xs px-3 py-1.5 shadow">Habis</span>
           </div>
         )}
 
+        {/* PO badge */}
+        {isPo && (
+          <span className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 bg-amber-500/95 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full shadow-xs border border-amber-300/60 pointer-events-none flex items-center gap-1">
+            PO (H-7)
+          </span>
+        )}
+
         {/* Floating Category Pill */}
         {product.kategori && (
-          <span className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 bg-white/95 backdrop-blur-md text-text text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full shadow-xs border border-white/60 max-w-[calc(100%-16px)] truncate pointer-events-none">
+          <span className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 bg-white/95 backdrop-blur-md text-text text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full shadow-xs border border-white/60 max-w-[calc(100%-60px)] truncate pointer-events-none">
             {product.kategori.nama}
           </span>
         )}
 
         {/* Quick add button with spring hover feedback */}
-        {isAvailable && (
+        {isOrderable && (
           <button
             type="button"
             onClick={handleAddToCart}

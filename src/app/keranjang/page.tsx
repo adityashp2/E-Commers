@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/hooks/useCart';
-import { formatRupiah } from '@/lib/utils';
+import { formatRupiah, formatTanggal } from '@/lib/utils';
 import { buildWhatsAppMessage, getWhatsAppUrl } from '@/lib/whatsapp';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
@@ -20,6 +20,7 @@ import {
   FileText,
   ShieldCheck,
   Sparkles,
+  Clock,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSettings } from '@/lib/store';
@@ -35,7 +36,9 @@ export default function KeranjangPage() {
   const [isClient, setIsClient] = useState(false);
 
   const waNumber = settings.wa_number || '085161204930';
-  const minDays = parseInt(settings.min_hari_pesan) || 1;
+  const defaultMinDays = parseInt(settings.min_hari_pesan) || 1;
+  const hasPoItem = items.some((item) => item.produk.status === 'po');
+  const minDays = hasPoItem ? Math.max(defaultMinDays, 7) : defaultMinDays;
 
   // Popup Modal State after checkout
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -50,6 +53,16 @@ export default function KeranjangPage() {
     return d.toISOString().split('T')[0];
   };
 
+  // Keep selected date valid if cart contents change to require PO minimum days
+  useEffect(() => {
+    if (tanggal) {
+      const minDate = getMinDate(minDays);
+      if (tanggal < minDate) {
+        setTanggal(minDate);
+      }
+    }
+  }, [minDays, tanggal]);
+
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
     if (!nama.trim()) {
@@ -60,7 +73,9 @@ export default function KeranjangPage() {
     } else {
       const minDate = getMinDate(minDays);
       if (tanggal < minDate) {
-        errs.tanggal = `Pemesanan minimal H+${minDays} (${minDate})`;
+        errs.tanggal = hasPoItem
+          ? `Pesanan Pre-Order minimal H-7 hari (mulai ${formatTanggal(minDate)})`
+          : `Pemesanan minimal H+${minDays} (${formatTanggal(minDate)})`;
       }
     }
     if (items.length === 0) {
@@ -170,6 +185,21 @@ export default function KeranjangPage() {
               
               {/* CART ITEMS LIST (Col 7 on Desktop) */}
               <div className="lg:col-span-7 space-y-4">
+                {/* Pre-Order Banner if cart contains PO product */}
+                {hasPoItem && (
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 text-amber-950 flex items-start gap-3 shadow-xs">
+                    <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 text-amber-700 mt-0.5">
+                      <Clock className="w-4 h-4" />
+                    </div>
+                    <div className="text-xs sm:text-sm">
+                      <h4 className="font-bold text-amber-900">Pesanan Memuat Produk Pre-Order (PO)</h4>
+                      <p className="text-amber-800/90 mt-0.5 leading-relaxed">
+                        Terdapat buket Pre-Order di keranjang Anda. Tanggal pengambilan/pengiriman otomatis disesuaikan <strong>minimal H-7 hari</strong> (paling cepat {formatTanggal(getMinDate(minDays))}) agar buket dapat dirangkai sempurna.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="bg-white/80 rounded-2xl px-5 py-3 border border-border/70 flex justify-between items-center text-xs font-bold text-text-secondary uppercase tracking-wider">
                   <span>Daftar Buket ({items.length})</span>
                   <span>Subtotal</span>
@@ -202,10 +232,17 @@ export default function KeranjangPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <span className="text-[11px] font-bold text-mint-dark uppercase tracking-wider">
-                              {item.produk.kategori?.nama || 'Buket'}
-                            </span>
-                            <h3 className="font-bold text-text text-base leading-snug line-clamp-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-[11px] font-bold text-mint-dark uppercase tracking-wider">
+                                {item.produk.kategori?.nama || 'Buket'}
+                              </span>
+                              {item.produk.status === 'po' && (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
+                                  PO (Min. H-7)
+                                </span>
+                              )}
+                            </div>
+                            <h3 className="font-bold text-text text-base leading-snug line-clamp-1 mt-0.5">
                               {item.produk.nama}
                             </h3>
                           </div>
@@ -336,8 +373,17 @@ export default function KeranjangPage() {
                       {errors.tanggal && (
                         <p className="text-red-500 text-xs mt-1 font-medium">{errors.tanggal}</p>
                       )}
-                      <p className="text-[11px] text-text-secondary mt-1">
-                        *Minimal pemesanan H+{minDays} agar rangkaian bunga tertata sempurna
+                      <p className="text-[11px] mt-1">
+                        {hasPoItem ? (
+                          <span className="text-amber-700 font-semibold flex items-center gap-1">
+                            <Clock className="w-3 h-3 shrink-0" />
+                            Minimal H-7 hari (mulai {formatTanggal(getMinDate(minDays))}) karena memuat buket Pre-Order
+                          </span>
+                        ) : (
+                          <span className="text-text-secondary">
+                            *Minimal pemesanan H+{minDays} agar rangkaian bunga tertata sempurna
+                          </span>
+                        )}
                       </p>
                     </div>
 

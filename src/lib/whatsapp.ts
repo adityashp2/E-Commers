@@ -2,10 +2,14 @@ import { CartItem, CheckoutData } from '@/types';
 import { formatRupiah, formatTanggal } from './utils';
 
 export function buildWhatsAppMessage(data: CheckoutData): string {
+  const hasPo = data.items.some((item) => item.produk.status === 'po');
+
   const itemLines = data.items
     .map((item, i) => {
       const subtotal = item.produk.harga * item.jumlah;
-      let line = `${i + 1}. *${item.produk.nama}*\n`;
+      const isPo = item.produk.status === 'po';
+      const poTag = isPo ? ' [PRE-ORDER H-7]' : '';
+      let line = `${i + 1}. *${item.produk.nama}${poTag}*\n`;
       line += `   - Jumlah: ${item.jumlah} pcs\n`;
       line += `   - Subtotal: ${formatRupiah(subtotal)}`;
       if (item.produk.foto_url) {
@@ -23,6 +27,9 @@ export function buildWhatsAppMessage(data: CheckoutData): string {
   let message = `Halo Kak, saya ingin memesan buket:\n\n`;
   message += `*DATA PEMESAN*\n`;
   message += `Nama: ${data.nama}\n`;
+  if (hasPo) {
+    message += `Jenis Pesanan: *PRE-ORDER (Minimal H-7)*\n`;
+  }
   message += `Tanggal Pengambilan: ${formatTanggal(data.tanggal)}\n\n`;
   message += `*DETAIL PRODUK:*\n\n`;
   message += `${itemLines}\n\n`;

@@ -29,7 +29,7 @@ export const MOCK_PRODUCTS: Produk[] = [
     harga: 250000,
     deskripsi: 'Rangkaian romantis bunga peony dan mawar pastel segar dengan aroma wangi lembut. Hadiah sempurna untuk merayakan momen berharga bersama pasangan.',
     foto_url: 'https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=600&q=80',
-    status: 'tersedia',
+    status: 'po',
     created_at: '2026-01-02',
     kategori: MOCK_CATEGORIES[1],
   },

@@ -19,7 +19,7 @@ export default function TambahProdukPage() {
   const [kategoriId, setKategoriId] = useState('');
   const [harga, setHarga] = useState('');
   const [deskripsi, setDeskripsi] = useState('');
-  const [status, setStatus] = useState<'tersedia' | 'habis'>('tersedia');
+  const [status, setStatus] = useState<'tersedia' | 'po' | 'habis'>('tersedia');
   const [fotoFile, setFotoFile] = useState<File | null>(null);
   const [fotoDataUrl, setFotoDataUrl] = useState<string>('');
 
@@ -202,10 +202,10 @@ export default function TambahProdukPage() {
           <label className="block text-xs font-bold uppercase tracking-wider text-text mb-2.5">
             Status Ketersediaan Produk
           </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Opsi 1: Tersedia (Hijau / Mint) */}
             <label
-              className={`flex items-center gap-3 p-3 rounded-2xl border-2 cursor-pointer transition-all ${
+              className={`flex items-start gap-3 p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${
                 status === 'tersedia'
                   ? 'border-mint bg-mint-light/40 text-mint-dark shadow-xs'
                   : 'border-border/80 bg-white text-text-secondary hover:border-mint/50'
@@ -217,17 +217,39 @@ export default function TambahProdukPage() {
                 value="tersedia"
                 checked={status === 'tersedia'}
                 onChange={() => setStatus('tersedia')}
-                className="w-4 h-4 accent-mint-dark cursor-pointer"
+                className="w-4 h-4 mt-0.5 accent-mint-dark cursor-pointer"
               />
               <div>
-                <span className="block text-xs font-bold text-text">Tersedia (Ready Stock)</span>
-                <span className="block text-[11px] text-text-secondary">Produk bisa langsung dipesan</span>
+                <span className="block text-xs font-bold text-text">Tersedia (Ready)</span>
+                <span className="block text-[11px] text-text-secondary mt-0.5">Produk ready, bisa langsung dipesan</span>
               </div>
             </label>
 
-            {/* Opsi 2: Habis (Merah / Rose) */}
+            {/* Opsi 2: Pre-Order (Amber / Emas) */}
             <label
-              className={`flex items-center gap-3 p-3 rounded-2xl border-2 cursor-pointer transition-all ${
+              className={`flex items-start gap-3 p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${
+                status === 'po'
+                  ? 'border-amber-400 bg-amber-50/80 text-amber-800 shadow-xs'
+                  : 'border-border/80 bg-white text-text-secondary hover:border-amber-300'
+              }`}
+            >
+              <input
+                type="radio"
+                name="status"
+                value="po"
+                checked={status === 'po'}
+                onChange={() => setStatus('po')}
+                className="w-4 h-4 mt-0.5 accent-amber-600 cursor-pointer"
+              />
+              <div>
+                <span className="block text-xs font-bold text-amber-700">Pre-Order (PO)</span>
+                <span className="block text-[11px] text-text-secondary mt-0.5">Tetap bisa dipesan, min. tanggal H-7 hari</span>
+              </div>
+            </label>
+
+            {/* Opsi 3: Habis (Merah / Rose) */}
+            <label
+              className={`flex items-start gap-3 p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${
                 status === 'habis'
                   ? 'border-red-400 bg-red-50 text-red-700 shadow-xs'
                   : 'border-border/80 bg-white text-text-secondary hover:border-red-300'
@@ -239,11 +261,11 @@ export default function TambahProdukPage() {
                 value="habis"
                 checked={status === 'habis'}
                 onChange={() => setStatus('habis')}
-                className="w-4 h-4 accent-red-600 cursor-pointer"
+                className="w-4 h-4 mt-0.5 accent-red-600 cursor-pointer"
               />
               <div>
-                <span className="block text-xs font-bold text-red-600">Habis / Pre-order</span>
-                <span className="block text-[11px] text-text-secondary">Muncul badge habis di katalog</span>
+                <span className="block text-xs font-bold text-red-600">Habis (Kosong)</span>
+                <span className="block text-[11px] text-text-secondary mt-0.5">Muncul badge habis, tidak bisa dipesan</span>
               </div>
             </label>
           </div>

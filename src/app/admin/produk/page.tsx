@@ -98,10 +98,14 @@ export default function AdminProdukPage() {
                     </span>
                     <span
                       className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
-                        product.status === 'tersedia' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                        product.status === 'tersedia'
+                          ? 'bg-green-100 text-green-700'
+                          : product.status === 'po'
+                          ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                          : 'bg-red-100 text-red-700'
                       }`}
                     >
-                      {product.status}
+                      {product.status === 'tersedia' ? 'Tersedia' : product.status === 'po' ? 'Pre-Order (H-7)' : 'Habis'}
                     </span>
                   </div>
                   <h3 className="font-bold text-text text-sm truncate mt-1">{product.nama}</h3>
@@ -176,10 +180,12 @@ export default function AdminProdukPage() {
                           className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
                             product.status === 'tersedia'
                               ? 'bg-mint-light text-mint-dark'
+                              : product.status === 'po'
+                              ? 'bg-amber-100 text-amber-800 border border-amber-200'
                               : 'bg-red-100 text-red-700'
                           }`}
                         >
-                          {product.status}
+                          {product.status === 'tersedia' ? 'Tersedia' : product.status === 'po' ? 'Pre-Order (H-7)' : 'Habis'}
                         </span>
                       </td>
                       <td className="p-4 pr-6 text-right">
