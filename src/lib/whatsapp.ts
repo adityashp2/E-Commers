@@ -12,8 +12,14 @@ export function buildWhatsAppMessage(data: CheckoutData): string {
       let line = `${i + 1}. *${item.produk.nama}${poTag}*\n`;
       line += `   - Jumlah: ${item.jumlah} pcs\n`;
       line += `   - Subtotal: ${formatRupiah(subtotal)}`;
-      if (item.produk.foto_url) {
-        line += `\n   - Foto Produk: ${item.produk.foto_url}`;
+      // Only include photo URL if it is a valid web URL (exclude heavy base64 data URLs)
+      if (
+        item.produk.foto_url &&
+        (item.produk.foto_url.startsWith('http://') ||
+          item.produk.foto_url.startsWith('https://')) &&
+        !item.produk.foto_url.startsWith('data:')
+      ) {
+        line += `\n   - Link Foto: ${item.produk.foto_url}`;
       }
       return line;
     })
@@ -47,9 +53,16 @@ export function buildWhatsAppMessage(data: CheckoutData): string {
 }
 
 export function getWhatsAppUrl(phoneNumber: string, message: string): string {
-  const cleanNumber = phoneNumber.replace(/\D/g, '');
-  const formattedNumber = cleanNumber.startsWith('0')
-    ? '62' + cleanNumber.slice(1)
-    : cleanNumber;
-  return `https://wa.me/${formattedNumber}?text=${encodeURIComponent(message)}`;
+  const fallbackNumber = '6285161204930';
+  let cleanNumber = (phoneNumber || '').replace(/\D/g, '');
+
+  if (!cleanNumber) {
+    cleanNumber = fallbackNumber;
+  } else if (cleanNumber.startsWith('0')) {
+    cleanNumber = '62' + cleanNumber.slice(1);
+  } else if (!cleanNumber.startsWith('62')) {
+    cleanNumber = '62' + cleanNumber;
+  }
+
+  return `https://api.whatsapp.com/send?phone=${cleanNumber}&text=${encodeURIComponent(message)}`;
 }

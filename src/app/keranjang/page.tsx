@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/hooks/useCart';
 import { formatRupiah, formatTanggal } from '@/lib/utils';
@@ -43,15 +43,20 @@ export default function KeranjangPage() {
   // Popup Modal State after checkout
   const [showReviewModal, setShowReviewModal] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const getMinDate = (days: number): string => {
+  const getMinDate = useCallback((days: number): string => {
     const d = new Date();
     d.setDate(d.getDate() + days);
-    return d.toISOString().split('T')[0];
-  };
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }, []);
+
+  useEffect(() => {
+    setIsClient(true);
+    // Auto-fill initial valid date if empty
+    setTanggal((prev) => (prev ? prev : getMinDate(minDays)));
+  }, [minDays, getMinDate]);
 
   // Keep selected date valid if cart contents change to require PO minimum days
   useEffect(() => {
@@ -61,26 +66,43 @@ export default function KeranjangPage() {
         setTanggal(minDate);
       }
     }
-  }, [minDays, tanggal]);
+  }, [minDays, tanggal, getMinDate]);
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
     if (!nama.trim()) {
-      errs.nama = 'Nama lengkap wajib diisi';
+      errs.nama = 'Nama lengkap pemesan wajib diisi';
+      setTimeout(() => {
+        const el = document.getElementById('nama');
+        if (el) {
+          el.focus();
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 50);
     }
+
+    const minDate = getMinDate(minDays);
+    const effectiveTanggal = tanggal || minDate;
+
     if (!tanggal) {
-      errs.tanggal = 'Tanggal pengambilan wajib dipilih';
-    } else {
-      const minDate = getMinDate(minDays);
-      if (tanggal < minDate) {
-        errs.tanggal = hasPoItem
-          ? `Pesanan Pre-Order minimal H-7 hari (mulai ${formatTanggal(minDate)})`
-          : `Pemesanan minimal H+${minDays} (${formatTanggal(minDate)})`;
-      }
+      setTanggal(minDate);
+    } else if (effectiveTanggal < minDate) {
+      errs.tanggal = hasPoItem
+        ? `Pesanan Pre-Order minimal H-7 hari (mulai ${formatTanggal(minDate)})`
+        : `Pemesanan minimal H+${minDays} (${formatTanggal(minDate)})`;
+      setTimeout(() => {
+        const el = document.getElementById('tanggal');
+        if (el) {
+          el.focus();
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 50);
     }
+
     if (items.length === 0) {
-      errs.cart = 'Keranjang Anda masih kosong';
+      errs.cart = 'Keranjang Anda masih kosong. Silakan pilih buket terlebih dahulu.';
     }
+
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -88,20 +110,35 @@ export default function KeranjangPage() {
   const handleCheckout = () => {
     if (!validate()) return;
 
+    const effectiveTanggal = tanggal || getMinDate(minDays);
+
     const message = buildWhatsAppMessage({
       items,
       nama: nama.trim(),
-      tanggal,
+      tanggal: effectiveTanggal,
       catatan: catatan.trim(),
     });
 
     const url = getWhatsAppUrl(waNumber, message);
-    window.open(url, '_blank', 'noopener,noreferrer');
+
+    // Reliable opening mechanism: anchor click bypasses browser popup blockers
+    try {
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch {
+      // Direct navigation fallback if element click fails
+      window.location.href = url;
+    }
 
     // Trigger review pop-up modal
     setTimeout(() => {
       setShowReviewModal(true);
-    }, 600);
+    }, 1000);
   };
 
   const buketName = items.length > 0 ? items[0].produk.nama : 'Buket Bunga Segar';
@@ -403,6 +440,12 @@ export default function KeranjangPage() {
                     </div>
                   </div>
 
+                  {errors.nama && (
+                    <div className="bg-red-50 border border-red-200 text-red-600 text-xs font-bold p-2.5 rounded-xl text-center flex items-center justify-center gap-1.5 animate-pulse">
+                      <span>⚠️ Mohon lengkapi Nama Pemesan di atas sebelum checkout</span>
+                    </div>
+                  )}
+
                   {errors.cart && (
                     <p className="text-red-500 text-sm text-center font-medium bg-red-50 p-2.5 rounded-xl">
                       {errors.cart}
@@ -411,8 +454,9 @@ export default function KeranjangPage() {
 
                   {/* WhatsApp CTA with spring click */}
                   <button
+                    type="button"
                     onClick={handleCheckout}
-                    className="btn-whatsapp w-full py-4 text-base font-bold shadow-lg"
+                    className="btn-whatsapp w-full py-4 text-base font-bold shadow-lg cursor-pointer hover:shadow-xl transition-all"
                     disabled={items.length === 0}
                   >
                     <MessageCircle className="w-5 h-5 fill-current" />
