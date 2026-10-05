@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createClient, withTimeout } from '@/lib/supabase/client';
-import { Produk } from '@/types';
+
 
 // ─────────────────────────────────────────────
 // TYPES
@@ -198,10 +198,6 @@ export interface ProductStat {
   omzet: number;
 }
 
-export interface KategoriStat {
-  nama: string;
-  terjual: number;
-}
 
 /** Returns last N days stats (only from 'selesai' orders) */
 export function getDailyStats(orders: Pesanan[], days = 30): DailyStat[] {

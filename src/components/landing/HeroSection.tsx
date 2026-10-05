@@ -4,7 +4,8 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Gift, Flower2, MessageCircle, Sparkles, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { useLandingContent } from '@/hooks/useLandingContent';
-import SafeImage, { FALLBACK_BOUQUET_IMG } from '@/components/ui/SafeImage';
+import SafeImage from '@/components/ui/SafeImage';
+
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
