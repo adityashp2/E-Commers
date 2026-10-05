@@ -112,9 +112,20 @@ export default function HeroSection() {
       className="relative overflow-hidden pt-20 sm:pt-24 lg:pt-28 pb-12 sm:pb-20 lg:pb-24"
       aria-label="Hero"
     >
-      {/* Dynamic ambient background blobs */}
-      <div className="absolute top-10 left-1/4 w-96 h-96 bg-pink/20 rounded-full blur-3xl pointer-events-none -z-10 animate-[pulse_6s_ease-in-out_infinite]" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-mint/15 rounded-full blur-3xl pointer-events-none -z-10 animate-[pulse_8s_ease-in-out_infinite]" />
+      {/* ── Video Background ── */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover -z-20 pointer-events-none"
+        aria-hidden="true"
+      >
+        <source src="/videos/gemini_generated_video_863ad992.mp4" type="video/mp4" />
+      </video>
+
+      {/* ── Gradient Overlay — atas lebih terang, bawah lebih gelap ── */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/55 via-black/40 to-black/65 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
@@ -124,16 +135,16 @@ export default function HeroSection() {
             
             {/* Pill tag */}
             <div className="reveal">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink/40 border border-pink-border/40 text-text text-xs font-semibold tracking-wide mb-6">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 border border-white/30 text-white text-xs font-semibold tracking-wide mb-6 backdrop-blur-sm">
                 <Sparkles className="w-3.5 h-3.5 text-mint animate-[spin_8s_linear_infinite]" />
                 {content.hero_tag}
               </span>
             </div>
 
             {/* Headline with modern responsive typography */}
-            <h1 className="slide-in-left font-[family-name:var(--font-heading)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-text leading-[1.15] mb-6 tracking-tight">
+            <h1 className="slide-in-left font-[family-name:var(--font-heading)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-[1.15] mb-6 tracking-tight">
               {content.hero_judul}{' '}
-              <span className="relative inline-block text-mint-dark">
+              <span className="relative inline-block text-mint">
                 {content.hero_highlight}
                 <svg
                   className="absolute left-0 -bottom-2 w-full h-3 text-mint opacity-40"
@@ -146,7 +157,7 @@ export default function HeroSection() {
               </span>
             </h1>
 
-            <p className="slide-in-left text-text-secondary text-sm sm:text-base lg:text-lg leading-relaxed mb-8 max-w-xl">
+            <p className="slide-in-left text-white/80 text-sm sm:text-base lg:text-lg leading-relaxed mb-8 max-w-xl">
               {content.hero_deskripsi}
             </p>
 
@@ -168,9 +179,9 @@ export default function HeroSection() {
             </div>
 
             {/* Trust points */}
-            <div className="reveal flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-6 lg:gap-8 pt-4 border-t border-border/80 text-text-secondary text-xs sm:text-sm">
+            <div className="reveal flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-6 lg:gap-8 pt-4 border-t border-white/20 text-white/75 text-xs sm:text-sm">
               <div className="flex items-center gap-2.5">
-                <Flower2 className="w-4 h-4 sm:w-5 sm:h-5 text-mint-dark shrink-0" />
+                <Flower2 className="w-4 h-4 sm:w-5 sm:h-5 text-mint shrink-0" />
                 <span>Bunga & Bahan Segar Pilihan</span>
               </div>
               <div className="flex items-center gap-2.5">
